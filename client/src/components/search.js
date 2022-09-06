@@ -20,7 +20,7 @@ function Search(props) {
     const searchContacts = async(e) => {
         e.preventDefault();
         try{ 
-            var url = "http://localhost:3001/api/contacts";
+            var url = "http://localhost:3001/api/contacts-search";
            
             var res = await fetch(url, {
                 method:'Post',
@@ -52,13 +52,7 @@ function Search(props) {
                     </Col>                
                 </Row>
            </Container>
-           {user==null?''
-            : <ContactCard id={user.id}
-            username={user.username}
-            isOnline={user.isOnline}
-            avatar={user.avatarURL} />
-            }
-          
+           
            {search.length>0?
             search.map(e=>
                 <ContactCard 

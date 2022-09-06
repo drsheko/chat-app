@@ -129,3 +129,19 @@ exports.Add_friend = (req, res) => {
     }
   );
 };
+
+exports.get_Friends = (req,res) => {
+  var userId = req.params.userid;
+  User.findById(userId,{ friends:1})
+  .populate({
+    path: 'friends'
+  })
+  .exec((err, data) => {
+    if (err) {
+      return res.status(401).json({ errors: err });
+    } else { console.log('MY DATA',data.friends)
+      return res.json({  friends: data.friends});
+    }
+  });
+}
+

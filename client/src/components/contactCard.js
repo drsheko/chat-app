@@ -14,8 +14,6 @@ function ContactCard(props) {
   var contactId = props.id;
 
   const addFriend = async (e) => {
-    console.log(user._id)
-    console.log(contactId)
     e.preventDefault();
     try {
       var url = `http://localhost:3001/api/${user._id}/${contactId}`;

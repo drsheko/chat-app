@@ -15,8 +15,11 @@ router.post("/api/login", authController.login_post);
 router.get("/api/logout", authController.log_out);
 
 // search Contacts 
-router.post('/api/contacts' , userController.search_Contacts);
+router.post('/api/contacts-search' , userController.search_Contacts);
 
 //add Friend 
-router.post('/api/:userid/:contactid', userController.Add_friend)
+router.post('/api/:userid/:contactid', userController.Add_friend);
+
+// get User`s friends
+router.get('/api/contacts/:userid/friends', userController.get_Friends)
 module.exports = router;
