@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
 const Login = ({ getUser }) => {
   let navigate = useNavigate();
   const [errors, setErrors] = useState();
@@ -11,26 +12,19 @@ const Login = ({ getUser }) => {
   const handleFormSubmit = async (e) => {
     try {
       e.preventDefault();
-
-      var res = await fetch("http://localhost:3001/api/login", {
-        method: "Post",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          username: form.username,
-          password: form.password,
-        }),
-      });
-      var data = await res.json();
-      var user = await data.user;
-      if ("errors" in data) {
-        setErrors(data.errors.error);
+      var res = await axios.post("http://localhost:3001/api/login",{
+        username: form.username,
+        password: form.password
+      })      
+      var user = res.data.user
+      
+      if ("errors" in res.data) {
+        setErrors(res.data.errors.error);
       } else {
         getUser(user); //send user to app
         // Save logged user to local storage
         localStorage.setItem("CHAT_APP_user", JSON.stringify(user));
-        navigate("/dashboard", { replace: true });
+        navigate("/", { replace: true });
       }
     } catch (err) {
       //setError(err)

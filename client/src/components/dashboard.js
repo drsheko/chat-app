@@ -1,23 +1,23 @@
 import React from 'react';
-import {useState} from 'react'
-import Tabs from 'react-bootstrap/Tabs'
-import Tab from 'react-bootstrap/Tab';
-import Contacts from './contacts';
-function Dashboard() {
+import {useState, useEffect} from 'react'
+import ContactSection from './contactsSection';
 
-     const [key, setKey] = useState('contacts')   
+function Dashboard({currKey}) {
+
+    const [activeKey,setActiveKey] = useState(currKey)
+
+    useEffect(()=>{
+        setActiveKey(currKey)
+    },[currKey])
     return (
-        <Tabs activeKey={key}
-        onSelect={(k) => setKey(k)}
-        className="mb-3 col-5 " fill> 
-        <Tab eventKey= 'contact'  title='contact'>
-            <Contacts/>
-        </Tab>
-
-        <Tab eventKey='chats' title='chats'>
-            <div>active chats</div>
-        </Tab>
-        </Tabs>
+        <div>
+            {   activeKey =='home'?'home'
+                : activeKey == 'profile'? 'profile'
+                : activeKey=='contacts'? <ContactSection/>
+                : activeKey =='pencil'? 'pencil'
+                :'settings'
+            }
+        </div>
     );
 }
 

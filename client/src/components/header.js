@@ -10,11 +10,18 @@ const Header = ({ setUser }) => {
     setUser(user);
   }, [user]);
   // logout
-  const logout = () => {
-    setUser(null);
-    localStorage.clear();
-    navigate("/");
-   // toast.success("You logged out successfully");
+  const logout = async() => {
+    try{
+        var res = await fetch("http://localhost:3001/api/logout")
+        setUser(null);
+        localStorage.clear();
+        navigate("/");
+    // toast.success("You logged out successfully");
+    }
+    catch{
+
+    }
+    
   };
   return (
     <>
