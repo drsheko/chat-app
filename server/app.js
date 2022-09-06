@@ -1,31 +1,73 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var cors = require('cors');
-var session = require('express-session')
-var http = require("http");
-var {Server} = require("socket.io");
+require("dotenv").config();
+var createError = require("http-errors");
+var express = require("express");
+var path = require("path");
+var cookieParser = require("cookie-parser");
+var logger = require("morgan");
+var mongoose = require("mongoose");
+var flash = require("connect-flash");
+var session = require("express-session");
+var passport = require("passport");
+var LocalStrategy = require("passport-local").Strategy;
+var User = require("./models/userModel");
+var Routers = require("./routes/routers");
+var bcrypt = require("bcryptjs");
+var cors = require("cors");
+
+// mongoDatabase setup
+mongoDB = 
+  'mongodb+srv://drsheko:' +
+  process.env.MONGO_PASSCODE +
+ '@chat-app.yyqnnrf.mongodb.net/?retryWrites=true&w=majority';
+mongoose.connect(mongoDB, { useUnifiedTopology: true, useNewUrlParser: true });
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "Mongo Connection Error"));
+
 var app = express();
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+// view engine setup
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
 
-// Create the http server
-const server = require('http').createServer(app);
+// passport setup
+passport.use(
+	new LocalStrategy((username, password, done) => {
+	  User.findOne({ username: username }, (err, user) => {
+		if (err) {
+		  return done(err);
+		}
+		if (!user) {
+		  return done(null, false, { error: "user is not found " });
+		}
+  
+		bcrypt.compare(password, user.password, (err, res) => {
+		  if (err) {
+			return done(console.log(err));
+		  }
+		  if (!res) {
+			return done(null, false, { error: "incorrect password" });
+		  } else {
+			return done(null, user);
+		  }
+		});
+	  });
+	})
+  );
 
-// Create the Socket IO server on
-// the top of http server
-const io = new Server(server);
+  passport.serializeUser(function (user, done) {
+	done(null, user.id);
+  });
+  
+  passport.deserializeUser(function (id, done) {
+	User.findById(id, function (err, user) {
+	  done(err, user);
+	});
+  });
 
-// View engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-
-app.use(cors())
+app.use(cors());
 app.use(session({ secret: 'cats', resave: false, saveUninitialized: true}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -33,33 +75,55 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function (req, res, next) {
-
 	// Website you wish to allow to connect
-	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+	res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
   
 	// Request methods you wish to allow
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+	res.setHeader(
+	  "Access-Control-Allow-Methods",
+	  "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+	);
   
 	// Request headers you wish to allow
-	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+	res.setHeader(
+	  "Access-Control-Allow-Headers",
+	  "X-Requested-With,content-type"
+	);
   
 	// Set to true if you need the website to include cookies in the requests sent
-	res.setHeader('Access-Control-Allow-Credentials', true);
+	res.setHeader("Access-Control-Allow-Credentials", true);
   
 	next();
-  })
+  });
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// Routes setup
+app.use("/", Routers);
+
+
+/*
+// confirm username and allow connection
+io.use((socket, next) => {
+	const username = socket.handshake.auth.username;
+	if (!username) {
+	  return next(new Error("invalid username"));
+	}
+	socket.username = username;
+	next();
+  });
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
+  console.log('a user connected', socket.id);
+  socket.on('disconnect', (reason) => {
+    console.log('user disconnected', reason);
   });
 });
 
-
+io.on('connection',(socket)=>
+	socket.on('ftb',(data)=>{ console.log('rece :', data)
+		socket.broadcast.emit('btf', data)
+		console.log('send:' , data)
+	})
+) */
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
 	next(createError(404));
@@ -79,4 +143,4 @@ app.use(function (err, req, res, next) {
 	res.render('error');
 });
 
-module.exports = { app: app, server: server };
+module.exports = app;
