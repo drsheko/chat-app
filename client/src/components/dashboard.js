@@ -1,6 +1,7 @@
 import React from 'react';
 import {useState, useEffect} from 'react'
 import ContactSection from './contactsSection';
+import Home from './home';
 
 function Dashboard({currKey}) {
 
@@ -11,7 +12,7 @@ function Dashboard({currKey}) {
     },[currKey])
     return (
         <div>
-            {   activeKey =='home'?'home'
+            {   activeKey =='home'? <Home/>
                 : activeKey == 'profile'? 'profile'
                 : activeKey=='contacts'? <ContactSection/>
                 : activeKey =='pencil'? 'pencil'
