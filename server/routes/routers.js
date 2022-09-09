@@ -21,5 +21,5 @@ router.post('/api/contacts-search' , userController.search_Contacts);
 router.post('/api/:userid/:contactid', userController.Add_friend);
 
 // get User`s friends
-router.get('/api/contacts/:userid/friends', userController.get_Friends)
+router.post('/api/contacts/:userid/friends', userController.get_Friends)
 module.exports = router;

@@ -11,6 +11,7 @@ import { io } from "socket.io-client";
 import Dashboard from './components/dashboard';
 import Home from './components/home';
 import SideNav from './components/sideNav';
+import ChatBox from './components/chatBox';
 const socket = io('http://localhost:3001', { autoConnect: false })
 
 
@@ -39,7 +40,8 @@ function App() {
         <Route path='/' element={<Home/>} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login getUser={getUser} />} />
-        <Route path='/dashboard' element={<Dashboard/>} />     
+        <Route path='/dashboard' element={<Dashboard/>} />  
+       
         </Routes>
 
     </UserContext.Provider>
