@@ -1,10 +1,12 @@
 var mongoose = require("mongoose");
+const { findById } = require("./userModel");
 var Schema = mongoose.Schema;
 
 const chatRoomSchema = new Schema(
   {
     userIds:[{ type: Schema.Types.ObjectId, ref: "user", default: []}],
-    timestamps: {type : Data, default: new Date()}
+    messages:[{ type: Schema.Types.ObjectId, ref: "message", default: []}],
+    timestamps: {type : Date, default: new Date()}
   }
 );
 
@@ -21,7 +23,7 @@ chatRoomSchema.statics.getChatRoomsByUserId = async function (userId) {
 
 chatRoomSchema.statics.getChatRoomByRoomId = async function (roomId) {
   try {
-    const room = await this.findOne({ _id: roomId });
+    const room = await this.findById({roomId});
     return room;
   } catch (error) {
     throw error;
@@ -36,12 +38,16 @@ chatRoomSchema.statics.initiateChat = async function (userIds) {
         $size: userIds.length,
         $all: [...userIds],
       }
+    }).populate({
+      path:'userIds'
+      
     });
     if (availableRoom) {
       return {
         isNew: false,
         message: 'retrieving an old chat room',
         chatRoomId: availableRoom._doc._id,
+        room:availableRoom
    
       };
     }
@@ -50,6 +56,7 @@ chatRoomSchema.statics.initiateChat = async function (userIds) {
       isNew: true,
       message: 'creating a new chatroom',
       chatRoomId: newRoom._doc._id,
+      room:newRoom
     };
   } catch (error) {
     console.log('error on start chat method', error);

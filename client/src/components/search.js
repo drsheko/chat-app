@@ -1,8 +1,10 @@
 import React from 'react';
 import {useState, useEffect, useContext} from 'react'
+import axios from 'axios'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Container from 'react-bootstrap/Container'
+import CloseButton from 'react-bootstrap/CloseButton'
 import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row';
 import { UserContext } from '../App';
@@ -12,11 +14,28 @@ import ContactCard from './contactCard';
 function Search(props) {
     var user = useContext(UserContext)
     const [form, setForm] = useState('')
-    const [ search, setSearch] = useState([]);
+    const [resultOpen, setResultOpen] = useState(false);
+    const [ searchResult, setSearchResult] = useState([]);
 
     const handleChange = (e) => {
         setForm(e.target.value)
     }
+    const closeResult = () => {
+        setResultOpen(false)
+    }
+    const addFriend = async (e) => {
+        e.preventDefault();
+        try {
+            var contactId = searchResult[0]._id
+            var url = `http://localhost:3001/api/${user._id}/${contactId}`;
+            var res = await axios.post(url)
+        
+            var data = await res.data
+            props.setAddedFriend(data.addedFriend);
+            closeResult()
+          
+        } catch {}
+      };
     const searchContacts = async(e) => {
         e.preventDefault();
         try{ 
@@ -32,7 +51,8 @@ function Search(props) {
                 })
             })
             var data =await res.json()
-            setSearch(data.result)
+            setResultOpen(true)
+            setSearchResult(data.result)
             setForm('')
         }
         catch(err){
@@ -41,6 +61,7 @@ function Search(props) {
         
     } 
     return (
+        <div>
         <Form onSubmit={searchContacts}> 
            <Container>
                 <Row>
@@ -52,19 +73,24 @@ function Search(props) {
                     </Col>                
                 </Row>
            </Container>
-           
-           {search.length>0?
-            search.map(e=>
-                <ContactCard 
-                    id={e._id}
-                    username={e.username}
-                    isOnline={e.isOnline}
-                    avatar={e.avatarURL}
-                
-                />)
-                :''
-            }
         </Form>
+        {
+            resultOpen?
+            <Container >
+                <CloseButton  onClick={closeResult}/>
+                {searchResult.length>0?
+                    searchResult.map(e=>
+                        <>
+                            <div>{e.username}</div>
+                            <button onClick={addFriend} >Add</button>
+                        </>
+                    )
+                    :'No item found'
+                }
+            </Container>
+            :''
+        }      
+        </div>
     );
 }
 

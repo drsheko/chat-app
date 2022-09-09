@@ -26,7 +26,7 @@ const readByRecipientSchema = new Schema(
   );
   
   
-  chatMessageSchema.statics.createPostInChatRoom = async function (chatRoom, message, postedBy) {
+  messageSchema.statics.createPostInChatRoom = async function (chatRoom, message, postedBy) {
     try {
       const post = await this.create({
         chatRoom,
@@ -96,7 +96,7 @@ const readByRecipientSchema = new Schema(
   /**
    * @param {String} chatRoomId - chat room id
    */
-  chatMessageSchema.statics.getConversationByRoomId = async function (chatRoomId, options = {}) {
+  messageSchema.statics.getConversationByRoomId = async function (chatRoomId, options = {}) {
     try {
       return this.aggregate([
         { $match: { chatRoomId } },
@@ -126,7 +126,7 @@ const readByRecipientSchema = new Schema(
    * @param {String} chatRoomId - chat room id
    * @param {String} currentUserOnlineId - user id
    */
-  chatMessageSchema.statics.markMessageRead = async function (chatRoomId, currentUserOnlineId) {
+  messageSchema.statics.markMessageRead = async function (chatRoomId, currentUserOnlineId) {
     try {
       return this.updateMany(
         {
@@ -152,7 +152,7 @@ const readByRecipientSchema = new Schema(
    * @param {{ page, limit }} options - pagination options
    * @param {String} currentUserOnlineId - user id
    */
-  chatMessageSchema.statics.getRecentConversation = async function (chatRoomIds, options, currentUserOnlineId) {
+messageSchema.statics.getRecentConversation = async function (chatRoomIds, options, currentUserOnlineId) {
     try {
       return this.aggregate([
         { $match: { chatRoomId: { $in: chatRoomIds } } },

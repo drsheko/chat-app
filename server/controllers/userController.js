@@ -122,26 +122,46 @@ exports.Add_friend = (req, res) => {
     },
     (err) => {
       if (err) {
-        return res.status(401).json({ error: err });
+        return res.status(500).json({ error: err });
       } else {
-        return res.json({ success: "Friend request sent" });
+        User.findById(contactId,
+          (err,addedFriend) => {
+            if(err){
+              return res.status(500).json({success:false, err})
+            }else{console.log('MY DATA',addedFriend)
+              return res.status(200).json({success:true, addedFriend})
+            }
+          }
+          )
+       ;
       }
     }
   );
 };
 
-exports.get_Friends = (req,res) => {
+exports.get_USER_Friends = (req, res) => {
   var userId = req.params.userid;
-  User.findById(userId,{ friends:1})
-  .populate({
-    path: 'friends'
-  })
-  .exec((err, data) => {
-    if (err) {
-      return res.status(401).json({ errors: err });
-    } else { console.log('MY DATA',data.friends)
-      return res.json({  friends: data.friends});
+  User.findById(userId, { friends: 1 })
+    .populate({
+      path: "friends",
+    })
+    .exec((err, data) => {
+      if (err) {
+        return res.status(401).json({ errors: err });
+      } else {
+        console.log("MY DATA", data.friends);
+        return res.json({ friends: data.friends });
+      }
+    });
+};
+
+exports.get_USER_BY_userID = async (req, res) => {
+  var id = req.body.userId;
+  User.findById(id, (error, user) => {
+    if (error) {
+      return res.status(500).json({ success: false, error });
+    } else {
+      return res.status(200).json({ success: true, user });
     }
   });
-}
-
+};
