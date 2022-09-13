@@ -4,11 +4,13 @@ import {useContext, useState, useEffect} from 'react';
 import {Link} from 'react-router-dom'
 import { UserContext } from '../App';
 import ContactCard from './contactCard';
+import { useSocket } from '../context/socketProvider';
 
 function Contacts(props) {
     var user = useContext(UserContext);
     const [friends, setFriends] = useState([])
-    const [error, setError] = useState(null)
+    const [error, setError] = useState(null);
+    const socket =useSocket()
     const startChat= async(frndID)=> {
         var myID = user._id;
         var friendId = frndID;
@@ -20,6 +22,8 @@ function Contacts(props) {
             var chatRoom =await res.data.chatRoom.room
            props.setSelectedChat(chatRoom)
            props.setOpenChat(true) 
+           // join room 
+           socket.emit('join', chatRoom)
         }
         catch(err){
             setError(err)

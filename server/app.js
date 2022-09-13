@@ -13,6 +13,8 @@ var User = require("./models/userModel");
 var Routers = require("./routes/routers");
 var bcrypt = require("bcryptjs");
 var cors = require("cors");
+const { Server } = require("socket.io");
+const { createServer } = require("http")
 
 // mongoDatabase setup
 mongoDB = 
@@ -24,6 +26,13 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "Mongo Connection Error"));
 
 var app = express();
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, { cors:'*' });
+// Create the Socket IO server on 
+// the top of http server
+
+
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -96,10 +105,34 @@ app.use(function (req, res, next) {
 	next();
   });
 
+  
 // Routes setup
 app.use("/", Routers);
 
+//SOCKET IO
+io.on('connection', (socket) => {
+	
+	const id = socket.handshake.query.id;
+	console.log('user connected to server : ',id)
+	socket.on('join', (chat) => {
+		var chatId = chat._id;
+		socket.join(chatId)
+		console.log(`${id} joined room ${chatId}`)
+	});
+	socket.on('chat message', (data) => {
+		io.in(data.room).emit('message',{message:data.message, sender:data.sender})
+		
+		//io.in(data.room).emit('message', data.message)
+				console.log(data)
+	   });
+	
+	socket.on('disconnect', (reason) => {
+	  console.log('user disconnected', reason);
+	});
+	
+  });
 
+ 
 /*
 // confirm username and allow connection
 io.use((socket, next) => {
@@ -143,4 +176,4 @@ app.use(function (err, req, res, next) {
 	res.render('error');
 });
 
-module.exports = app;
+module.exports ={app:app, httpServer:httpServer}

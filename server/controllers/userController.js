@@ -59,7 +59,7 @@ exports.signup_post = [
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       var errorsMsg = errors.errors.map((err) => err.msg);
-      console.log(errorsMsg);
+     
       errorsArr.push(errorsMsg);
       return res.status(401).json({ errors: errorsMsg, form });
     }
@@ -91,7 +91,7 @@ exports.signup_post = [
 ];
 
 exports.search_Contacts = async (req, res) => {
-  console.log(req.body);
+  
   var search = req.body.search;
   User.find(
     {
@@ -128,7 +128,7 @@ exports.Add_friend = (req, res) => {
           (err,addedFriend) => {
             if(err){
               return res.status(500).json({success:false, err})
-            }else{console.log('MY DATA',addedFriend)
+            }else{
               return res.status(200).json({success:true, addedFriend})
             }
           }
@@ -149,7 +149,6 @@ exports.get_USER_Friends = (req, res) => {
       if (err) {
         return res.status(401).json({ errors: err });
       } else {
-        console.log("MY DATA", data.friends);
         return res.json({ friends: data.friends });
       }
     });

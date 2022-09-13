@@ -7,18 +7,19 @@ import {Route, Routes} from 'react-router-dom';
 import Login from './components/login';
 import Signup from './components/signup';
 import Header from './components/header';
-import { io } from "socket.io-client";
+
 import Dashboard from './components/dashboard';
 import Home from './components/home';
 import SideNav from './components/sideNav';
 import ChatBox from './components/chatBox';
-const socket = io('http://localhost:3001', { autoConnect: false })
+
 
 
 export const UserContext = createContext();
 
 function App() {
     const [user, setUser] = useState(null)
+    const [userId, setUserId] = useState(null)
     const [key, setKey] = useState('home')
     const getUser = (currUser) => {
       setUser(currUser)
@@ -31,11 +32,20 @@ function App() {
         setUser(foundUser);
       }
     }, []);
+    useEffect(()=> {
+        if(user){
+          setUserId(user._id)
+        }
+    }, [user])
   return(
     <UserContext.Provider value={user}>
       <Header setUser={setUser} />
       <SideNav setKey={setKey}/>
-      <Dashboard currKey={key} />
+      {
+        userId? <Dashboard currKey={key} />
+        :''
+      }
+      
       <Routes>
         <Route path='/' element={<Home/>} />
         <Route path="/signup" element={<Signup />} />
