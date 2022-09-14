@@ -37,7 +37,7 @@ function Search(props) {
         } catch {}
       };
     const searchContacts = async(e) => {
-        e.preventDefault();
+        e.preventDefault(); console.log(user.friends.includes('6315a6e347a2c033affed74e'))
         try{ 
             var url = "http://localhost:3001/api/contacts-search";
            
@@ -82,7 +82,8 @@ function Search(props) {
                     searchResult.map(e=>
                         <>
                             <div>{e.username}</div>
-                            <button onClick={addFriend} >Add</button>
+                            {user.friends.includes(e._id)?''
+                            :<button onClick={addFriend} >Add</button>}
                         </>
                     )
                     :'No item found'

@@ -1,19 +1,11 @@
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema;
 
-const readByRecipientSchema = new Schema(
-    {
-      _id: false,
-      readByUserId: String,
-      readAt: {
-        type: Date,
-        default: Date.now(),
-      },
-    },
-    {
-      timestamps: false,
-    }
-  );
+const readByRecipientSchema = new Schema({
+  _id:false,
+  readBy:{type:mongoose.Types.ObjectId, ref:'user'},
+  at:{type:Date, default:new Date()}
+})
   
   const messageSchema = new Schema(
     {
@@ -25,7 +17,21 @@ const readByRecipientSchema = new Schema(
     }
   );
   
-  
+
+  messageSchema.statics.createMessage = async(chatRoom, message, postedBy) => {
+    try{
+      const message = await this.create({
+        chatRoom,
+        message,
+        postedBy,
+       // readByRecipients: { 'readByUserId': postedBy }
+      })
+      return room
+    }
+    catch(error){
+      throw error;
+    }
+  }
   messageSchema.statics.createPostInChatRoom = async function (chatRoom, message, postedBy) {
     try {
       const post = await this.create({
@@ -234,4 +240,4 @@ messageSchema.statics.getRecentConversation = async function (chatRoomIds, optio
     }
   }
   
-  exports.module=  mongoose.model("message", messageSchema, 'messages');
+  module.exports =  mongoose.model("message", messageSchema, 'messages');

@@ -13,7 +13,10 @@ const chatRoomSchema = new Schema(
 
 chatRoomSchema.statics.getChatRoomsByUserId = async function (userId) {
   try {
-    const rooms = await this.find({ userIds: { $all: [userId] } });
+    const rooms = await this.find({ userIds: 
+      { $all:[ userId] } })
+      .populate('messages');
+     
     return rooms;
   } catch (error) {
     throw error;
@@ -40,7 +43,12 @@ chatRoomSchema.statics.initiateChat = async function (userIds) {
       }
     }).populate({
       path:'userIds'
-      
+    })
+    .populate({
+      path: 'messages',
+      populate:{
+        path:'postedBy'
+      }
     });
     if (availableRoom) {
       return {

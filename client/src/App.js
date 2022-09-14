@@ -12,14 +12,16 @@ import Dashboard from './components/dashboard';
 import Home from './components/home';
 import SideNav from './components/sideNav';
 import ChatBox from './components/chatBox';
+import { useSocket } from './context/socketProvider';
 
 
 
 export const UserContext = createContext();
 
 function App() {
+  var socket = useSocket()
     const [user, setUser] = useState(null)
-    const [userId, setUserId] = useState(null)
+    const [userId, setUserId] = useState(null);
     const [key, setKey] = useState('home')
     const getUser = (currUser) => {
       setUser(currUser)
@@ -36,7 +38,10 @@ function App() {
         if(user){
           setUserId(user._id)
         }
+        
     }, [user])
+
+
   return(
     <UserContext.Provider value={user}>
       <Header setUser={setUser} />
@@ -51,7 +56,6 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login getUser={getUser} />} />
         <Route path='/dashboard' element={<Dashboard/>} />  
-       
         </Routes>
 
     </UserContext.Provider>

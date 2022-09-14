@@ -8,9 +8,11 @@ import { useSocket } from '../context/socketProvider';
 
 function Contacts(props) {
     var user = useContext(UserContext);
-    const [friends, setFriends] = useState([])
+    const [friends, setFriends] = useState([]);
+    const [chatRooms, setChatRooms] =useState([])
     const [error, setError] = useState(null);
-    const socket =useSocket()
+    const socket =useSocket();
+    
     const startChat= async(frndID)=> {
         var myID = user._id;
         var friendId = frndID;
@@ -29,6 +31,7 @@ function Contacts(props) {
             setError(err)
         }
     }
+    
     useEffect(() => {
         const getFriends = async() => {
             try{
@@ -42,6 +45,21 @@ function Contacts(props) {
                 setError(err)
             }
         }
+        const getAllChatRooms = async() => {
+            var userId = user._id;
+             var url = "http://localhost:3001/api/user/all-rooms/join"
+            try{
+               var res = await axios.post(`http://localhost:3001/api/${userId}/all-rooms/join`)
+               var rooms = await res.data.rooms;
+              
+               setChatRooms(rooms)
+               console.log(rooms)
+            }
+            catch(error){
+             console.log(error)
+            }
+        }
+        getAllChatRooms();
         getFriends()
     }, [])
 
@@ -64,6 +82,34 @@ function Contacts(props) {
                 )}
                </>   
                 :'No friends'
+            }
+
+            __COnversations
+             {chatRooms.length>0?
+               <>
+                {chatRooms.map(r=>
+                        <div>
+                            
+                            {friends.length>0?
+                                friends.map((fr)=>fr._id ==r.userIds.filter(uId => uId !==user._id)?
+                                    <div>
+                                        <div>{fr.username}</div>
+                                         <button onClick={()=>startChat(fr._id)}> chat</button>
+                                         
+                                         
+                                    </div>
+                                    :'')
+                                :''
+                            }
+                            {r.messages.length>0?
+                            <div>{r.messages[r.messages.length-1].message}</div>
+                                          
+                                        :''}
+                            
+                        </div>
+                )}
+               </>   
+                :'No chats'
             }
         </div>
     );

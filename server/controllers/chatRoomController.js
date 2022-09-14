@@ -31,3 +31,14 @@ exports.get_chatRoomByRoomId = async(req,res) => {
         return res.status(500).json({success:false, error})
     }
 }
+
+exports.getAllChatRoomsByUserId = async(req,res) => {
+    var userId = req.params.userid;
+    try{
+        var rooms = await ChatRoom.getChatRoomsByUserId(userId);
+        res.status(200).json({success:true, rooms})
+    }
+    catch(error){
+        res.status(500).json({success:false, error})
+    }
+}

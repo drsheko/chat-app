@@ -164,3 +164,18 @@ exports.get_USER_BY_userID = async (req, res) => {
     }
   });
 };
+
+exports.switch_To_Online_ByUserId = async(req,res) => {
+  var userId = req.body.userId
+  User.findByIdAndUpdate(userId,{
+    $set:{
+      isOnline:true
+    }
+  })
+  .exec((err,user)=>{
+    if(err){
+      return res.status(401).json({success:false, err})
+    }
+    return res.status(200).json({success:true, user})
+  })
+}

@@ -2,7 +2,7 @@ const router = require("express").Router();
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
 const chatRoomController = require('../controllers/chatRoomController')
-
+const messageController = require('../controllers/messageController')
 router.get("/", function (req, res, next) {
   res.render("home");
 });
@@ -16,7 +16,11 @@ router.post("/api/login", authController.login_post);
 router.get("/api/logout", authController.log_out);
 
 // Get User by UserID 
-router.post('/api/users/user', userController.get_USER_BY_userID)
+router.post('/api/users/user', userController.get_USER_BY_userID);
+
+// switch user to be Online 
+router.put('/api/user/user-online', userController.switch_To_Online_ByUserId);
+
 
 // search Contacts 
 router.post('/api/contacts-search' , userController.search_Contacts);
@@ -32,7 +36,9 @@ router.post('/api/rooms/chat/chat-open',chatRoomController.initiateChat)
 
 // get chatRoom by roomId
 router.post('/api/rooms/chat/active-chat',chatRoomController.get_chatRoomByRoomId)
+// get all chatRooms for a user 
+router.post('/api/:userid/all-rooms/join', chatRoomController.getAllChatRoomsByUserId)
 
-
-
+// create a new message 
+router.post('/api/messages/newMessage/create', messageController.create_message)
 module.exports = router;
