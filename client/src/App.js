@@ -41,7 +41,6 @@ function App() {
         
     }, [user])
 
-
   return(
     <UserContext.Provider value={user}>
       <Header setUser={setUser} />

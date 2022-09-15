@@ -4,7 +4,7 @@ function Home(props) {
     
     return (
         <div>
-            Home
+            Homecc
         </div>
     );
 }

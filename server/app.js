@@ -130,10 +130,9 @@ io.on('connection', (socket) => {
 		})
 	})
 	socket.on('chat message', (data) => {
-		io.in(data.room).emit('message',{message:data.message, postedBy:data.sender})
-		
+		io.in(data.room).emit('message',{message:data.message, postedBy:data.sender, chatRoom:data.room})
+		console.log('message data is: ',data)
 		//io.in(data.room).emit('message', data.message)
-				console.log(data.sender)
 	   });
 	
 	socket.on('disconnect', (reason) => {

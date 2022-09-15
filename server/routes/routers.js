@@ -40,5 +40,11 @@ router.post('/api/rooms/chat/active-chat',chatRoomController.get_chatRoomByRoomI
 router.post('/api/:userid/all-rooms/join', chatRoomController.getAllChatRoomsByUserId)
 
 // create a new message 
-router.post('/api/messages/newMessage/create', messageController.create_message)
+router.post('/api/messages/newMessage/create', messageController.create_message);
+
+// get unread messages 
+router.post('/api/messages/all/unread', messageController.get_unreadMessages);
+
+// Mark all chatRoom`s messages as READ by user
+router.post('/api/messages/chatRoom/mark-read', messageController.mark_AllRoomMessages_AsRead_ByUser)
 module.exports = router;

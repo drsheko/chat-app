@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
@@ -9,14 +9,19 @@ import Modal from "react-bootstrap/Modal";
 import { UserContext } from "../App";
 import { useSocket } from "../context/socketProvider";
 
+
 function ChatBox(props) {
   var user = useContext(UserContext);
   var socket = useSocket();
   var chat = props.selectedChat;
+  var bottom = useRef(null)
   const [messages, setmessages] = useState(chat.messages);
   const [recipients, setRecipients] = useState(null);
   const [input, setInput] = useState("");
 
+  const scrollToBottom = () => {
+    bottom.current.scrollIntoView({behavior:'smooth'})
+  }
   const handleInputChange = (e) => {
     setInput(e.target.value);
   };
@@ -59,27 +64,31 @@ function ChatBox(props) {
       { message: input, postedBy: user },
     ]);
     setInput("");
+   
   };
 
   useEffect(() => {
     getRecipients();
 
-    socket.on("message", (data) => {
+    socket.on("message", (data) => { console.log('got a message')
       if (data.postedBy._id !== user._id) {
         setmessages((prevState) => [...prevState, data]);
       }
     });
   }, []);
-  
+
   useEffect(() => {
     getRecipients();
     setmessages(chat.messages);
     // console.log('hii',chat.messages)
   }, [chat]);
 
+  useEffect(()=>{
+    scrollToBottom()
+  },[messages])
   return (
     <div>
-      <Card className="text-center m-3 " style={{ height: "90%" }}>
+      <Card className="text-center m-3 " style={{ height: "90%",maxHeight:'100vh' }}>
         <Card.Header>
           {recipients !== null
             ? recipients.map((ele) => <div>{ele.username}</div>)
@@ -88,15 +97,22 @@ function ChatBox(props) {
         </Card.Header>
 
         <Card.Body>
-          <Card style={{ height: "85%" }}>
-            {messages.length > 0
-              ? messages.map((m) => (
-                  <div>
-                    <h3>{m.message}</h3>
-                    <h6>{m.postedBy.username}</h6>
-                  </div>
-                ))
-              : ""}
+          <Card style={{ minHeight: "300px", maxHeight:'300px', overflowY:'scroll' }}>
+            
+                <div>
+                    {messages.length > 0
+                    ? messages.map((m) => (
+                        <div>
+                            <h3>{m.message}</h3>
+                            <h6>{m.postedBy.username}</h6>
+                        </div>
+                        ))
+                    : ""}
+                    
+                </div>
+                <div ref={bottom}></div>
+            
+             
           </Card>
         </Card.Body>
         <Card.Footer className="text-muted">
@@ -112,6 +128,7 @@ function ChatBox(props) {
               variant="primary"
               className="col-2 ms-1"
               onClick={sendMessage}
+              
             >
               Send
             </Button>
