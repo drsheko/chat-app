@@ -13,6 +13,15 @@ var User = require("./models/userModel");
 var Routers = require("./routes/routers");
 var bcrypt = require("bcryptjs");
 var cors = require("cors");
+const multer = require("multer");
+const {
+  ref,
+  uploadBytes,
+  listAll,
+  deleteObject,
+} = require("firebase/storage");
+const storage = require("./firebase");
+
 const { Server } = require("socket.io");
 const { createServer } = require("http")
 const { ExpressPeerServer } = require('peer');
@@ -30,6 +39,10 @@ var app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors:'*' });
 
+
+// multer
+const memoStorage = multer.memoryStorage();
+const upload = multer({ memoStorage });
 
 //PEER SERVER
 const peerServer = ExpressPeerServer(httpServer, {

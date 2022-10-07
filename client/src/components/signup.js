@@ -108,11 +108,7 @@ const Signup = () => {
           onChange={uploadFile}
         />
 
-        {typeof error != "undefined" ? (
-          error.map((err) => <h4 className="text-danger h6 my-2">- {err}</h4>)
-        ) : (
-          <></>
-        )}
+      
         <button
           type="submit"
           value="submit"

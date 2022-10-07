@@ -4,20 +4,20 @@ const bcrypt = require("bcryptjs");
 const path = require("path");
 const { body, validationResult } = require("express-validator");
 const multer = require("multer");
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // cb(null, path.join(__dirname, '/../public/images'))
-    cb(null, path.join(__dirname, "/../client/src/images"));
-  },
-  filename: function (req, file, cb) {
-    cb(null, req.body.username + file.originalname);
-  },
-});
-const upload = multer({ storage: storage });
+const {
+  ref,
+  uploadBytes,
+  listAll,
+  deleteObject,
+} = require("firebase/storage");
+const storage = require("../firebase");
+
+const memoStorage = multer.memoryStorage();
+const upload = multer({ memoStorage });
+
 
 exports.signup_post = [
   upload.single("avatarURL"),
-
   body("username")
     .isString()
     .trim()
@@ -43,10 +43,24 @@ exports.signup_post = [
     }),
 
   async (req, res, next) => {
+    //upload
+    var uploadedFileURL
+    const file = req.file;
+    const fileName = file.originalname+new Date()
+  const imageRef = ref(storage, fileName);
+  const metatype = { contentType: file.mimetype, name: file.originalname };
+  await uploadBytes(imageRef, file.buffer, metatype)
+    .then((snapshot) => {
+     uploadedFileURL = `https://firebasestorage.googleapis.com/v0/b/${snapshot.ref._location.bucket}/o/${snapshot.ref._location.path_}?alt=media`
+    
+    })
+    .catch((error) => console.log(error.message));
+
     var form = {
       username: req.body.username,
       password: req.body.password,
       confirmPassword: req.body.confirmPassword,
+      
     };
     var errorsArr = [];
     const isUsernameTaken = await User.findOne({ username: req.body.username });
@@ -70,7 +84,7 @@ exports.signup_post = [
           console.log(err);
         } else {
           if (req.file) {
-            uploaded_Url = req.file.filename;
+            uploaded_Url = uploadedFileURL;
           }
           var user = new User({
             username: req.body.username,
@@ -91,7 +105,6 @@ exports.signup_post = [
 ];
 
 exports.search_Contacts = async (req, res) => {
-  
   var search = req.body.search;
   User.find(
     {
@@ -99,7 +112,7 @@ exports.search_Contacts = async (req, res) => {
     },
     (err, result) => {
       if (err) {
-        return res.status(401).json({
+        return res.status(500).json({
           error: err,
         });
       } else {
@@ -107,7 +120,6 @@ exports.search_Contacts = async (req, res) => {
       }
     }
   );
-  console.log("search", search);
 };
 
 exports.Add_friend = (req, res) => {
