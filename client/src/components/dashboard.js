@@ -71,10 +71,9 @@ function Dashboard() {
           }
         );
         var chatRoom = await res.data.chatRoom.room;
-        socket.emit("end call", {
-          room: chatRoom._id,
-        }); 
+       
         setCallChatRoom(chatRoom)
+        return chatRoom
       }
       catch(error){
         console.log(error)
@@ -99,6 +98,7 @@ function Dashboard() {
         const call = myPeer.call(friendId, localStream);
         currentCallRef.current = call;
         setLocalVideo(localStream);
+        
 
         call.on("stream", (remoteStream) => {
           setIsCallAnswered(true);
@@ -116,42 +116,37 @@ function Dashboard() {
       }
     );
   };
-  const canelCall =() => {
+
+  const sendCallIsCancelled =async() => {
+    var chatRoom =await getChatRoomByCallerId(callRecipient[0]._id);
+    socket.emit('cancel call', {room:chatRoom._id});
+  }
+  const sendCallIsDeclined =async() => {
+    var chatRoom =await getChatRoomByCallerId(currentCall.peer);
+    socket.emit('decline call', {room:chatRoom._id});
+    setIsGettingCall(false);
+    setCurrentCall(null)
+    currentCallRef.current = null;
+  }
+  const cancelCall =async() => {
     setIsGettingCall(false);
     setIsCalling(false);
     setIsCallAnswered(false);
-    if (!currentCall) return;
     try { 
-     
-      // close cam and mic
-      for (const track of localVideoRef.current.srcObject.getTracks()) {
-        track.stop();
-      }
-      for (const track of remoteVideoRef.current.srcObject.getTracks()) {
-        track.stop();   console.log(5)
-      } 
       
+      for (const track of currentCallRef.current.localStream.getTracks()) {
+        track.stop();  
+      } 
       localVideoRef.current.srcObject=null
       remoteVideoRef.current.srcObject =null
-
-      
-      // close the call from my end
-      //currentCallRef.close()
-     
-      getChatRoomByCallerId(currentCall.peer);
-      
-      
       currentCall.close();
       setCurrentCall(null);
-      // reset answer / decline
-      // close call from other end
-        console.log('chat room emits') 
-     
     } catch {}
     currentCallRef.current = undefined;
   }
-  function endCall() {
-    console.log(currentCallRef.current)
+  
+
+  const endCall= async() => {
       setIsCallAnswered(false);
       setIsGettingCall(false);
       setIsCalling(false);
@@ -178,10 +173,10 @@ function Dashboard() {
       
       // close the call from my end
       //currentCallRef.close()
-     
-      getChatRoomByCallerId(currentCall.peer);
-     
-      
+     var chatRoom = await getChatRoomByCallerId(currentCall.peer)
+     socket.emit("end call", {
+      room: chatRoom._id,
+    }) 
        // close the call from my end
        currentCallRef.current.close();
        currentCallRef.current = null;
@@ -262,7 +257,14 @@ function Dashboard() {
         endCall();
         
       });
-  
+      socket.on("cancel call request", (data) => {
+        console.log('caller canecl call')
+        setIsGettingCall(false)
+      })
+      socket.on("decline call request", (data) => {
+        console.log('callee decline call')
+        cancelCall()
+      })
     }
    if (myPeer) {
     myPeer.on("error", (error) => console.log(error));
@@ -290,7 +292,6 @@ function Dashboard() {
   
   return (
     <div>
-      
           {isCallAnswered?
             <VideoPlayer
               ref={{localVideoRef,remoteVideoRef}}
@@ -300,19 +301,19 @@ function Dashboard() {
 
           :isGettingCall?
           <GettingCall isGettingCall={isGettingCall} setIsGettingCall={setIsGettingCall} 
-            setDecline={setDecline} 
-            endCall={endCall}
+           
             setIsCallAnswered={setIsCallAnswered}
             answerCall={answerCall}
             currentCall={currentCall}
+            sendCallIsDeclined={sendCallIsDeclined}
           />
           :isCalling?
           <Calling 
             isCalling={isCalling}
             setIsCalling={setIsCalling}
             callRecipient={callRecipient}
-            endCall={endCall}
-           
+            cancelCall = {cancelCall}
+            sendCallIsCancelled={sendCallIsCancelled}
           />
          : openChat === true && selectedChat !== null ? (
             <div style={{ minHeight: "100vh" }}>

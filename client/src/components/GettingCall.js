@@ -1,25 +1,19 @@
 import React from 'react';
-import {useState, useEffect, useContext, useRef} from 'react'
-import { useSocket } from '../context/socketProvider';
-import { usePeer } from '../context/peerProvider';
-import { UserContext } from '../App';
+import {useState, useEffect} from 'react'
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
 function GettingCall(props) {
-
-    
-    var currentCallRef = useRef(null);
-    const [fullscreen, setFullscreen] =useState(false)
-    
-    const [answer, setAnswer] = useState(false);
-    
+    const [fullscreen, setFullscreen] =useState(false) 
     const answerVideoCall=(call)=>{
         props.answerCall(call);
         props.setIsCallAnswered(true)
     }
+    useEffect(()=>{
+      // decline call if no response after 20 sec
+      setTimeout(()=> props.sendCallIsDeclined(), 20000)
+    },[])
 
- 
     return (
         <div>
             <Modal
@@ -39,7 +33,7 @@ function GettingCall(props) {
         <Button variant = 'success' 
             onClick={()=>{answerVideoCall(props.currentCall)}}
         >Answer</Button>
-        <Button variant='danger' onClick={props.endCall}>Decline</Button>
+        <Button variant='danger' onClick={props.sendCallIsDeclined}>Decline</Button>
       </Modal.Body>
       
     </Modal>

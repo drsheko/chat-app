@@ -15,13 +15,17 @@ import ring from '../sounds/calling.mp3'
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
-function Calling({setIsCalling, isCalling, callRecipient,endCall}) {
+function Calling({setIsCalling, isCalling, callRecipient,endCall,getChatRoomByCallerId, cancelCall, sendCallIsCancelled}) {
     const [fullscreen, setFullscreen] = useState(true);
     
+    const localCancelCall =async() => {
+      sendCallIsCancelled()
+      cancelCall()
+    }
     useEffect(()=>{
       const audio = document.querySelector('audio')
       audio.addEventListener('ended', ()=>{audio.play()})
-    })
+    });
     return (
         <div>
           <audio  src={ring} autoPlay />
@@ -57,10 +61,8 @@ function Calling({setIsCalling, isCalling, callRecipient,endCall}) {
                     <div class="bounce3"></div>
                  </span>
             
-          
             </Typography>
-          
-            <IconButton autoFocus style={{backgroundColor:'red'}} color='inherit' onClick={endCall} >
+            <IconButton autoFocus style={{backgroundColor:'red'}} color='inherit' onClick={localCancelCall} >
             <PhoneDisabledIcon/> 
             </IconButton>
           </Toolbar>

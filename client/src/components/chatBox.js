@@ -340,7 +340,7 @@ function ChatBox(props) {
               component="form"
               sx={{ display: "flex", alignItems: "center", width: "100%" }}
             >
-
+                
                 <InputEmoji
                   value={text}
                   onChange={setText}

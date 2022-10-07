@@ -135,6 +135,15 @@ io.on('connection', (socket) => {
 	socket.on('chat message', (data) => {
 		io.in(data.room).emit('message',{message:data.message, postedBy:data.sender, chatRoom:data.room});
 	   });
+	   socket.on('cancel call',(data) => {
+		console.log('cancel call from caller', data.room)
+		io.in(data.room).emit('cancel call request', {data})
+	   });
+
+	   socket.on('decline call',(data) => {
+		console.log('decline call from callee', data.room)
+		io.in(data.room).emit('decline call request', {data})
+	   });
 	   socket.on('end call', (data) => {
 		console.log('call end')
 		io.in(data.room).emit('recieve end call');
