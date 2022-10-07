@@ -352,7 +352,7 @@ function Dashboard() {
                           <Image
                       roundedCircle="ture"
                       style={{ width: "50px" }}
-                      src={require("../images/unknown.jpg")}
+                      src={user.avatarURL}
                     />
                         </IconButton>
                         <Menu
