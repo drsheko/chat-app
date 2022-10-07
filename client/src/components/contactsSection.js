@@ -16,33 +16,35 @@ function ContactSection(props) {
   const [addedFriend, setAddedFriend] =useState(null);
   const [chatRooms, setChatRooms] = useState(null)
   
-  useEffect(()=>{
+  useEffect(()=>{  
+
     const getAllChatRooms = async() => {
        var userId = user._id;
         var url = "http://localhost:3001/api/user/all-rooms/join"
        try{
           var res = await axios.post(`http://localhost:3001/api/${userId}/all-rooms/join`)
-          var rooms = await res.data.rooms;
-         
+          var rooms = await res.data.rooms; 
           setChatRooms(rooms)
-          console.log(rooms)
        }
        catch(error){
         console.log(error)
        }
     }
     getAllChatRooms();
-   
     
   },[])
   useEffect(()=>{ 
     if(chatRooms !== null){
-      socket.emit('join rooms', chatRooms)
+      socket.emit('join rooms', chatRooms);
+      console.log('joined rooms from section')
     }
-    
-  },[chatRooms])
+  },[chatRooms]);
+  useEffect(()=>{
+    props.setOpenChat(openChat);
+    props.setSelectedChat(selectedChat)
+  },[openChat, selectedChat])
   return (
-    <div className="row">
+    <div className="row my-3" >
       <div className="col">
         <Search setAddedFriend= {setAddedFriend}  addedFriend={addedFriend}
         />
@@ -51,13 +53,7 @@ function ContactSection(props) {
          />
       </div>
 
-      {openChat === true && selectedChat !== null ? (
-        <div className="col">
-          <ChatBox setOpenChat={setOpenChat} selectedChat={selectedChat} />
-        </div>
-      ) : (
-        ""
-      )}
+   
     </div>
   );
 }

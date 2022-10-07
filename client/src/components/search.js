@@ -37,7 +37,7 @@ function Search(props) {
         } catch {}
       };
     const searchContacts = async(e) => {
-        e.preventDefault(); console.log(user.friends.includes('6315a6e347a2c033affed74e'))
+        e.preventDefault(); 
         try{ 
             var url = "http://localhost:3001/api/contacts-search";
            
@@ -66,7 +66,7 @@ function Search(props) {
            <Container>
                 <Row>
                     <Col>
-                        <Form.Control type='text' value={form} onChange={handleChange} placeholder='search ....'  required/> 
+                        <Form.Control type='search' value={form} onChange={handleChange} placeholder='search ....'  required/> 
                     </Col>
                     <Col>
                         <Button type="submit" variant='secondary'><i className="bi bi-search"></i></Button>

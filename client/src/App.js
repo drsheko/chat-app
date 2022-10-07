@@ -13,16 +13,16 @@ import Home from './components/home';
 import SideNav from './components/sideNav';
 import ChatBox from './components/chatBox';
 import { useSocket } from './context/socketProvider';
-
+import { usePeer } from './context/peerProvider';
 
 
 export const UserContext = createContext();
 
 function App() {
-  var socket = useSocket()
+  
     const [user, setUser] = useState(null)
     const [userId, setUserId] = useState(null);
-    const [key, setKey] = useState('home')
+    
     const getUser = (currUser) => {
       setUser(currUser)
     }
@@ -43,15 +43,11 @@ function App() {
 
   return(
     <UserContext.Provider value={user}>
-      <Header setUser={setUser} />
-      <SideNav setKey={setKey}/>
-      {
-        userId? <Dashboard currKey={key} />
-        :''
-      }
+    
+      
       
       <Routes>
-        <Route path='/' element={<Home/>} />
+        <Route path='/' element={<Home userId={userId}/>} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login getUser={getUser} />} />
         <Route path='/dashboard' element={<Dashboard/>} />  

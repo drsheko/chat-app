@@ -87,7 +87,7 @@ const Login = ({ getUser }) => {
             id="showPassword"
             onClick={togglePassword}
           />
-          <label class="form-check-label" htmlFor="showPassword">
+          <label className="form-check-label" htmlFor="showPassword">
             Show password
           </label>
         </div>

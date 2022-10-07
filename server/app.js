@@ -15,7 +15,7 @@ var bcrypt = require("bcryptjs");
 var cors = require("cors");
 const { Server } = require("socket.io");
 const { createServer } = require("http")
-
+const { ExpressPeerServer } = require('peer');
 // mongoDatabase setup
 mongoDB = 
   'mongodb+srv://drsheko:' +
@@ -29,10 +29,17 @@ var app = express();
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors:'*' });
-// Create the Socket IO server on 
-// the top of http server
 
 
+//PEER SERVER
+const peerServer = ExpressPeerServer(httpServer, {
+	debug: true
+  });
+  
+  app.use('/peerjs', peerServer);
+ 
+  peerServer.on('connection', (client) => { console.log('client connected to Peer: ',client.id);});
+  peerServer.on('disconnect', (client) => { console.log('client disconnected');});
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -105,7 +112,6 @@ app.use(function (req, res, next) {
 	next();
   });
 
-  
 // Routes setup
 app.use("/", Routers);
 
@@ -118,24 +124,22 @@ io.on('connection', (socket) => {
 	socket.on('join', (chat) => {
 		var chatId = chat._id;
 		socket.join(chatId)
-		console.log(`${id} joined room ${chatId}`)
 	});
 	socket.on('join rooms', (data)=> {
-		
-		//var rooms = data.rooms
 		var roomsIds = data.map(r => r._id)
 		roomsIds.map(r => {
 			socket.join(r)
-			console.log(`${id}joined room: ${r}`)
 		})
 	})
+
 	socket.on('chat message', (data) => {
-		io.in(data.room).emit('message',{message:data.message, postedBy:data.sender, chatRoom:data.room})
-		console.log('message data is: ',data)
-		//io.in(data.room).emit('message', data.message)
+		io.in(data.room).emit('message',{message:data.message, postedBy:data.sender, chatRoom:data.room});
 	   });
-	
-	socket.on('disconnect', (reason) => {
+	   socket.on('end call', (data) => {
+		console.log('call end')
+		io.in(data.room).emit('recieve end call');
+	   });	
+	   socket.on('disconnect', (reason) => {
 	  // update user status to offline in db
 	  User.findByIdAndUpdate(id,{
 		$set:{

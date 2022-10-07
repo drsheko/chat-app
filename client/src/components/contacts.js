@@ -1,19 +1,52 @@
 import React from "react";
 import axios from "axios";
+import moment from 'moment'
 import { useContext, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { UserContext } from "../App";
-import ContactCard from "./contactCard";
 import { useSocket } from "../context/socketProvider";
-
+import Image from "react-bootstrap/Image";
+import { styled } from '@mui/material/styles';
+import Badge from '@mui/material/Badge';
+import  ListItem  from "@mui/material/ListItem";
+import Avatar  from "@mui/material/Avatar";
+import ListItemAvatar  from "@mui/material/ListItemAvatar";
+import ListItemText from "@mui/material/ListItemText";
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    backgroundColor: '#44b700',
+    color: '#44b700',
+    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+    '&::after': {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      borderRadius: '50%',
+      animation: 'ripple 1.2s infinite ease-in-out',
+      border: '1px solid currentColor',
+      content: '""',
+    },
+  },
+  '@keyframes ripple': {
+    '0%': {
+      transform: 'scale(.8)',
+      opacity: 1,
+    },
+    '100%': {
+      transform: 'scale(2.4)',
+      opacity: 0,
+    },
+  },
+}));
 function Contacts(props) {
   var user = useContext(UserContext);
+  const socket = useSocket();
   const [friends, setFriends] = useState([]);
+  const [localSelectedChat, setLocalSelectedChat] = useState(null)
   const [chatRooms, setChatRooms] = useState([]);
   const [error, setError] = useState(null);
-  const [gotMsg, setGotMsg] = useState(false);
-  const socket = useSocket();
-
+  
   const startChat = async (frndID) => {
     var myID = user._id;
     var friendId = frndID;
@@ -26,8 +59,18 @@ function Contacts(props) {
         }
       );
       var chatRoom = await res.data.chatRoom.room;
+      console.log(res.data)
+      if(res.data.chatRoom.isNew){ console.log('created room')
+        
+        setChatRooms(prevState => [chatRoom, ...prevState])
+      }
+      // send selected chat info to open it 
       props.setSelectedChat(chatRoom);
       props.setOpenChat(true);
+    // mark all messages as readed in db when chat opens
+      var chatRoomId = chatRoom._id;
+      markMessagesAsReaded(myID, chatRoomId);
+
       // join room
       socket.emit("join", chatRoom);
     } catch (err) {
@@ -35,6 +78,20 @@ function Contacts(props) {
     }
   };
 
+  const markMessagesAsReaded = async(userId, chatRoomId) => {
+    try{
+        var res = await axios.post(
+            "http://localhost:3001/api/messages/chatRoom/mark-read",
+            {
+                userId:userId,
+                chatRoomId:chatRoomId
+            }
+        )
+    }
+    catch(err){
+       setError(err)
+    }
+}
   const getUnreadedMessages = async(userId, chatRoomId) => {
         try{
             var res = await axios.post(
@@ -45,7 +102,6 @@ function Contacts(props) {
                 }
             )
             var messagesCount = await res.data.msgs.length;
-            console.log(messagesCount)
             return messagesCount;
         }
         catch(err){
@@ -74,17 +130,13 @@ function Contacts(props) {
         );
         var rooms = await res.data.rooms;
             // set unreaded messages for each chat
-        
             rooms = await Promise.all(rooms.map(async(room)=>{
                 var roomId = room._id;
                 var count = await getUnreadedMessages(user._id,roomId);
                 room.unreadedMessages = count
                 return room
             }))
-           
-        
         setChatRooms(rooms);
-        console.log(rooms)
       } catch (error) {
         console.log(error);
       }
@@ -95,20 +147,29 @@ function Contacts(props) {
   }, []);
 
   useEffect(() => {
-    socket.on("message", (message) => {
+    if(socket){
+      socket.on("message", (message) => {
+        console.log('got msg', message)
       var updatedChatRooms = chatRooms.map((room) => {
         if (room._id == message.chatRoom) {
-          console.log("found room");
+           
           room.messages = [...room.messages, message];
+          room.unreadedMessages +=1;
+          
           return room;
         }
         return room;
       });
-      if (updatedChatRooms !== []) {
+      
+      console.log(updatedChatRooms)
+      if (updatedChatRooms.length>0) {
+        console.log('update rooms')
         setChatRooms(updatedChatRooms);
         console.log("updated", updatedChatRooms);
       }
     });
+    }
+    
   }, []);
 
   useEffect(() => {
@@ -119,20 +180,28 @@ function Contacts(props) {
 
   return (
     <div>
-      __friends
-      {friends.length > 0 ? (
-        <>
-          {friends.map((fr) => (
-            <div>
-              <div>{fr.username}</div>
-              <button onClick={() => startChat(fr._id)}> chat</button>
-            </div>
-          ))}
-        </>
-      ) : (
-        "No friends"
-      )}
-      __COnversations
+      <div className="my-2 p-2 bg-light">
+        {friends.length > 0 ? (
+          
+          <div className="d-flex">
+            {friends.map((fr) => (
+                <div onClick={() => startChat(fr._id)} className='mx-2' > 
+                  <StyledBadge
+                      overlap="circular"
+                      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                      variant="dot"
+                    >
+                      <Image className="avatar"  src={require('../images/unknown.jpg')} />
+                  </StyledBadge>
+                  <div>{fr.username}</div>
+                </div>
+              ))}
+          </div>
+        ) : (
+          "No friends"
+        )}
+      </div>
+      <div>
       {chatRooms.length > 0 ? (
         <>
           {chatRooms.map((r) => (
@@ -140,27 +209,59 @@ function Contacts(props) {
               {friends.length > 0
                 ? friends.map((fr) =>
                     fr._id == r.userIds.filter((uId) => uId !== user._id) ? (
-                      <div>
-                        <div>{fr.username}</div>
-                        <button onClick={() => startChat(fr._id)}> chat</button>
+                      <div >
+                        
+                        <ListItem button onClick={() => startChat(fr._id)} >
+                          <ListItemAvatar>
+                            <Avatar alt="Profile Picture" src={require('../images/unknown.jpg')} />
+                          </ListItemAvatar>
+                          <ListItemText primary={fr.username}
+                              secondary={r.messages.length > 0 ? (
+                                <div>{r.messages[r.messages.length - 1].message}</div>
+                              ) : (
+                                ""
+                              )}
+                          />
+                          {r.unreadedMessages>0?(
+                            <div className="bg-primary rounded-circle text-light text-center me-5" style={{width:'22px', height:'22px'}}>
+                              <div className="fs-6 fw-bold">{ r.unreadedMessages} </div>
+                              </div>
+                            )   
+                                :''
+                            }
+                          <div>
+                          {r.messages.length > 0 ? (
+                                <div>
+                                  {moment(r.messages[r.messages.length - 1].timestamp).format('MMM Do YY') === moment(new Date()).format('MMM Do YY')?
+                                    moment(r.messages[r.messages.length - 1].timestamp).format(' h:mm a')
+                                    : moment(r.messages[r.messages.length - 1].timestamp).format(' h:mm a, MMM Do YY')
+                                }
+                                </div>
+                              ) : (
+                                ""
+                              )}
+                          </div>
+                         
+
+                          
+                        </ListItem>
                       </div>
+                      
                     ) : (
                       ""
                     )
                   )
                 : ""}
-              {r.messages.length > 0 ? (
-                <div>{r.messages[r.messages.length - 1].message}</div>
-              ) : (
-                ""
-              )}
-              <div>{r.unreadedMessages}</div>
+                 
+              
+              
             </div>
           ))}
         </>
       ) : (
         "No chats"
       )}
+      </div>
     </div>
   );
 }
