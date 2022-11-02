@@ -148,6 +148,11 @@ io.on('connection', (socket) => {
 	socket.on('chat message', (data) => {
 		io.in(data.room).emit('message',{message:data.message, postedBy:data.sender, chatRoom:data.room});
 	   });
+// photo message
+socket.on('chat photo message', (data) => {
+	console.log(data)
+	io.in(data.newMessage.chatRoom).emit('photo message',{msg:data.newMessage});
+   });
 	   socket.on('cancel call',(data) => {
 		console.log('cancel call from caller', data.room)
 		io.in(data.room).emit('cancel call request', {data})

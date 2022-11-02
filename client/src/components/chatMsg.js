@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/material/Box";
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
@@ -37,6 +37,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 function ChatMsg({message, userId}) {
     const myColor =  "#ab47bc" ;
     const otherColor = '#eeeeee';
+ 
   return (
     <div style={{display:'flex' ,flexDirection:'column'}}>
         {
@@ -59,7 +60,12 @@ function ChatMsg({message, userId}) {
                     fontWeight: "700",
                     }}
                 >
-                    <h3>{message.message}</h3>
+                     {message.type==='photo'?
+                     
+                      <img src={message.message}  style={{width:'150px',height:'150px'}}/>
+                      : <h3>{message.message}</h3>
+                  
+                  }
                     
                  </Box>
         :(  <div style={{alignSelf: "start", display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
@@ -85,7 +91,12 @@ function ChatMsg({message, userId}) {
                     fontWeight: "700",
                     }}
                 >
-                    <h3>{message.message}</h3>
+                  {message.type==='photo'?
+                    <img src={message.message} alt='photMsg' style={{width:'150px',height:'150px'}}/>
+                    : <h3>{message.message}</h3>
+                  
+                  }
+                   
                     
                  </Box>
                  <h6>{moment(message.timestamp).format('h:mm a')}</h6>

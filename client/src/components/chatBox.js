@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import Card from "react-bootstrap/Card";
-import Popover from '@mui/material/Popover';
+import Popover from "@mui/material/Popover";
 import Form from "react-bootstrap/Form";
 import CloseButton from "react-bootstrap/CloseButton";
 import Modal from "react-bootstrap/Modal";
@@ -13,12 +13,10 @@ import { Peer } from "peerjs";
 import { usePeer } from "../context/peerProvider";
 import CallModal from "./callModal";
 import ChatMsg from "./chatMsg";
-import InputEmoji from 'react-input-emoji'
+import InputEmoji from "react-input-emoji";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
-import ListItemText from "@mui/material/ListItemText";
-import ListItem from "@mui/material/ListItem";
-import List from "@mui/material/List";
+import CollectionsIcon from "@mui/icons-material/Collections";
 import Divider from "@mui/material/Divider";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -26,12 +24,11 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
 import Slide from "@mui/material/Slide";
-import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
-import { TransitionProps } from "@mui/material/transitions";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import SendIcon from "@mui/icons-material/Send";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
 import CallIcon from "@mui/icons-material/Call";
@@ -40,8 +37,9 @@ import { styled } from "@mui/material/styles";
 import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 import { red, blue } from "@mui/material/colors";
-import { Container } from "@mui/material";
+import { Container, Stack } from "@mui/material";
 import Calling from "./Calling";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -92,29 +90,41 @@ function ChatBox(props) {
   var currentCallRef = useRef(null);
   var localVideoRef = useRef(null);
   var remoteVideoRef = useRef(null);
-  const [ text, setText ] = useState('')
+  const [text, setText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [fullscreen, setFullscreen] = useState(true);
   const [scroll, setScroll] = useState("paper");
   const [messages, setmessages] = useState(chat.messages);
   const [recipients, setRecipients] = useState(null);
   const [input, setInput] = useState("");
   const [isCalling, setIsCalling] = useState(false);
-  const [calling, setCalling] = useState(false)
+  const [calling, setCalling] = useState(false);
   const [answer, setAnswer] = useState(false);
   const [decline, setDecline] = useState(false);
-  const [response, setResponse] = useState(null);
-  const [chosenEmoji, setChosenEmoji] = useState(null);
-
-  function handleOnEnter (text) {
-    console.log('enter', text)
+  const [upload, setUpload] = useState(null);
+  const [uploadURL, setUploadURL] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSelected, setIsSelected] = useState(false);
+  const [image, setImage] = useState(null);
+  function handleOnEnter(text) {
+    console.log("enter", text);
   }
-  
 
+  const handleUploadFile = async (e) => {
+    var file = e.target.files[0];
+
+    setUpload(file);
+    scrollToBottom();
+    setIsSelected(true);
+    if (e.target.files && e.target.files[0]) {
+      setImage(URL.createObjectURL(file));
+    }
+  };
   const localMakeVideoCall = (friendId) => {
     props.setIsCalling(true);
     props.setCallRecipient(recipients);
-    props.makeVideoCall(friendId)
-  }
+    props.makeVideoCall(friendId);
+  };
 
   // Answer Call
   const answerCall = (call) => {
@@ -194,7 +204,6 @@ function ChatBox(props) {
     }
   };
 
-
   const closeChat = () => {
     props.setOpenChat(false);
   };
@@ -215,11 +224,85 @@ function ChatBox(props) {
         sender: user._id,
       });
       var newMessage = await res.data.msg;
+    
     } catch (error) {
       console.log(error);
     }
   };
 
+  const createCallSummaryMessage = async (message) => {
+    var url = "http://localhost:3001/api/messages/newMessage/create";
+    try {
+      var res = await axios.post(url, {
+        chatId: chat._id,
+        message,
+        sender: user._id,
+        type:'call'
+      });
+      var newMessage = await res.data.msg;
+      return newMessage
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const createPhotoMsg = async (message) => {
+    var uploadedFileURL;
+    const formData = new FormData();
+    formData.append("photoMsg", upload);
+    try {
+      const response = await axios({
+        method: "post",
+        url: "http://localhost:3001/api/messages/photo-msg/upload",
+        data: formData,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      uploadedFileURL = await response.data.URL;
+      setUploadURL(uploadedFileURL);
+      setUpload(null);
+      setIsSelected(false);
+    } catch (error) {
+      console.log(error);
+    }
+    var url = "http://localhost:3001/api/messages/newMessage/create";
+    try {
+      var res = await axios.post(url, {
+        chatId: chat._id,
+        message: uploadedFileURL,
+        sender: user._id,
+        type: "photo",
+      });
+      var newMessage = await res.data.msg;
+      return newMessage;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const sendPhotoMessage = async (e) => {
+    e.preventDefault();
+    setIsUploading(true);
+    var newMessage = await createPhotoMsg();
+    console.log(newMessage);
+
+    socket.emit("chat photo message", {
+      newMessage,
+      /*room: chat._id,
+      sender: user,
+      message: uploadURL,
+      type:'photo'*/
+    });
+    setIsUploading(false);
+    setmessages((prevState) => [
+      ...prevState,
+      {message:newMessage.message, postedBy:{_id:newMessage.postedBy}, type:newMessage.type, chatRoom:newMessage.chatRoom, timestamp:newMessage.timestamp}
+    ]);
+    console.log('user', user)
+    console.log('MESSAGES HERE:', messages[messages.length-1]);
+    console.log(messages)
+  };
   const sendMessage = (e) => {
     e.preventDefault();
     socket.emit("chat message", {
@@ -234,17 +317,71 @@ function ChatBox(props) {
     ]);
     setText("");
   };
+  const sendCallSummaryMessage =async(message) => {
+    //e.preventDefault();
+    socket.emit("chat message", {
+      room: chat._id,
+      sender: user,
+      message: message,
+      type:'call'
+    });
+   var newMessage = await  createCallSummaryMessage(message);
+   setmessages((prevState) => [
+      ...prevState,
+        newMessage
+    ]);
+    
+  };
+  const getChatMessagesByRoomId = async(chatId) => {
+    var url = "http://localhost:3001/api/rooms/chat/active-chat";
+    try {
+      var res = await axios.post(url, {
+        roomId : chatId
+        
+      });
+      var messages = await res.data.room.messages
+      setmessages(messages)
+    } catch (error) {
+      console.log(error);
+    } 
+  }
+  // -------------useEffect section ---------------------------
 
   useEffect(() => {
+    scrollToBottom();
     getRecipients();
-    
+
     socket.on("message", (data) => {
       if (data.postedBy._id !== user._id) {
         setmessages((prevState) => [...prevState, data]);
       }
     });
-    
   }, []);
+  useEffect(() => {
+    socket.on("photo message", (data) => {
+      if (data.msg.postedBy !== user._id) {
+        setmessages((prevState) => [...prevState, data.msg]);
+      }
+    });
+  }, []);
+  useEffect(() => {
+    if (document.readyState === "complete") {
+      console.log("readiiiiiiiiiiiiiii");
+      scrollToBottom();
+    }
+  }, [document.readyState]);
+
+  // send message on call canecl 
+ /*useEffect(()=>{
+    if(props.callSummaryMessage) {
+      console.log('cancel message seeeeent', props.callSummaryMessage);
+      console.log(messages)
+      setmessages((prevState) => [...prevState, props.callSummaryMessage]);
+    }
+    else{
+      console.log('No Cancel')
+    }
+  },[props.callSummaryMessage])*/
 
   useEffect(() => {
     if (currentCallRef.current) {
@@ -257,6 +394,25 @@ function ChatBox(props) {
     setmessages(chat.messages);
   }, [chat]);
 
+  useEffect(()=>{
+    const getChatMessagesByRoomId = async(chatId) => {
+      var url = "http://localhost:3001/api/rooms/chat/active-chat";
+      try {
+        var res = await axios.post(url, {
+          roomId : chatId
+          
+        });
+        var messages = await res.data.room.messages;
+        setmessages(messages)
+      } catch (error) {
+        console.log(error);
+      } 
+    }
+    if(props.callSummaryMessage){
+     getChatMessagesByRoomId(chat._id);
+     props.setCallSummaryMessage(null)
+    }
+  },[props.callSummaryMessage])
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -266,15 +422,15 @@ function ChatBox(props) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
-       
       }
     }
-    scrollToBottom()
-
+    scrollToBottom();
   }, [props.openChat]);
   return (
     <div>
-      {(
+      {isLoading ? (
+        "Loading..........."
+      ) : (
         <Dialog
           fullScreen
           open={props.openChat}
@@ -307,10 +463,16 @@ function ChatBox(props) {
                   ? recipients.map((ele) => <div>{ele.username}</div>)
                   : ""}
               </Typography>
-              <Button color="inherit" onClick={() => localMakeVideoCall(recipients[0]._id)}>
+              <Button
+                color="inherit"
+                onClick={() => localMakeVideoCall(recipients[0]._id)}
+              >
                 <CallIcon />
               </Button>
-              <Button color="inherit" onClick={() => localMakeVideoCall(recipients[0]._id)}>
+              <Button
+                color="inherit"
+                onClick={() => localMakeVideoCall(recipients[0]._id)}
+              >
                 <VideocamIcon />
               </Button>
             </Toolbar>
@@ -322,7 +484,7 @@ function ChatBox(props) {
                 id="scroll-dialog-description"
                 ref={descriptionElementRef}
                 tabIndex={-1}
-                style={{ padding: 20 , minHeight:60}}
+                style={{ padding: 20, minHeight: 60 }}
               >
                 {messages.length > 0
                   ? messages.map((m) => (
@@ -331,6 +493,53 @@ function ChatBox(props) {
                       </div>
                     ))
                   : ""}
+                {isSelected ? (
+                  <Stack direction="row" sx={{ alignSelf: "end" }}>
+                    {isUploading ? (
+                      <Box sx={{ display: "flex" }}>
+                        <CircularProgress />
+                      </Box>
+                    ) : (
+                      <Stack
+                        direction="column"
+                        spacing={2}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          margin: "0 5px",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          endIcon={<SendIcon />}
+                          size="small"
+                          onClick={sendPhotoMessage}
+                        >
+                          Send
+                        </Button>
+                        <Button
+                          variant="contained"
+                          endIcon={<DeleteIcon />}
+                          size="small"
+                          onClick={() => {
+                            setIsSelected(false);
+                            setUpload(null);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </Stack>
+                    )}
+                    <img
+                      src={image ? image : require("../images/unknown.jpg")}
+                      className="rounded float-end "
+                      height="150"
+                      width="150"
+                    />
+                  </Stack>
+                ) : (
+                  ""
+                )}
                 <div ref={bottom}></div>
               </Card>
             </DialogContentText>
@@ -340,16 +549,25 @@ function ChatBox(props) {
               component="form"
               sx={{ display: "flex", alignItems: "center", width: "100%" }}
             >
-                
-                <InputEmoji
-                  value={text}
-                  onChange={setText}
-                  cleanOnEnter
-                  onEnter={handleOnEnter}
-                  placeholder="Type a message"
+              <div class="image-upload">
+                <label for="file-input">
+                  <CollectionsIcon className="fileInput-icon" />
+                </label>
+                <input
+                  id="file-input"
+                  type="file"
+                  onChange={handleUploadFile}
                 />
-                <Divider orientation="vertical"/>
-              
+              </div>
+
+              <InputEmoji
+                value={text}
+                onChange={setText}
+                cleanOnEnter
+                onEnter={handleOnEnter}
+                placeholder="Type a message"
+              />
+              <Divider orientation="vertical" />
 
               <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
               <IconButton

@@ -50,7 +50,7 @@ function Dashboard() {
   const [chatRooms, setChatRooms] = useState(null);
   const [isCallAnswered, setIsCallAnswered] =useState(false);
   const[callRecipient, setCallRecipient] = useState(null)
-
+  const [ callSummaryMessage, setCallSummaryMessage] =useState(null)
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -116,14 +116,47 @@ function Dashboard() {
       }
     );
   };
-
+  /*const sendCallSummaryMessage = async (chat, message) => {
+    var url = "http://localhost:3001/api/messages/newMessage/create";
+    try {
+      var res = await axios.post(url, {
+        chatId: chat._id,
+        message,
+        sender: user._id,
+      });
+      var newMessage = await res.data.msg;
+      console.log(newMessage)
+      setCallSummaryMessage(newMessage)
+    } catch (error) {
+      console.log(error);
+    }
+  };*/
+  const createMessage = async (message,chat) => {
+    var url = "http://localhost:3001/api/messages/newMessage/create";
+    try {
+      var res = await axios.post(url, {
+        chatId: chat._id,
+        message,
+        sender: user._id,
+      });
+      var newMessage = await res.data.msg;
+      return newMessage
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const sendCallIsCancelled =async() => {
     var chatRoom =await getChatRoomByCallerId(callRecipient[0]._id);
-    socket.emit('cancel call', {room:chatRoom._id});
+    var newMessage = await createMessage('missed', chatRoom);
+    setCallSummaryMessage(newMessage);
+    
+    socket.emit('cancel call', {room:chatRoom._id, message:newMessage});
   }
   const sendCallIsDeclined =async() => {
     var chatRoom =await getChatRoomByCallerId(currentCall.peer);
-    socket.emit('decline call', {room:chatRoom._id});
+    var newMessage = await createMessage('missed', chatRoom);
+    setCallSummaryMessage(newMessage);
+    socket.emit('decline call', {room:chatRoom._id,message:newMessage});
     setIsGettingCall(false);
     setCurrentCall(null)
     currentCallRef.current = null;
@@ -141,11 +174,11 @@ function Dashboard() {
       remoteVideoRef.current.srcObject =null
       currentCall.close();
       setCurrentCall(null);
+      setIsGettingCall(false);
     } catch {}
     currentCallRef.current = undefined;
   }
   
-
   const endCall= async() => {
       setIsCallAnswered(false);
       setIsGettingCall(false);
@@ -225,7 +258,6 @@ function Dashboard() {
     //currentCallRef.current = call;
     setCurrentCall(call)
   };
-
  
   // --------------------useEffect Section----------------------------------------
   useEffect(() => {
@@ -258,11 +290,13 @@ function Dashboard() {
         
       });
       socket.on("cancel call request", (data) => {
-        console.log('caller canecl call')
+        console.log('caller canecl call');
+        setCallSummaryMessage(data.message)
         setIsGettingCall(false)
       })
       socket.on("decline call request", (data) => {
         console.log('callee decline call')
+        setCallSummaryMessage(data.message)
         cancelCall()
       })
     }
@@ -326,6 +360,8 @@ function Dashboard() {
                 makeVideoCall={makeVideoCall}
                 setCallRecipient={setCallRecipient}
                 ref={{localVideoRef, remoteVideoRef}}
+                callSummaryMessage ={callSummaryMessage}
+                setCallSummaryMessage={setCallSummaryMessage}
               />
             </div>
           ) : (
@@ -351,7 +387,7 @@ function Dashboard() {
                         >
                           <Image
                       roundedCircle="ture"
-                      style={{ width: "50px" }}
+                      style={{ width: "50px" , height:'50px' }}
                       src={user.avatarURL}
                     />
                         </IconButton>

@@ -11,7 +11,19 @@ function GettingCall(props) {
     }
     useEffect(()=>{
       // decline call if no response after 20 sec
-      setTimeout(()=> props.sendCallIsDeclined(), 20000)
+     /* setTimeout(()=> {
+        if(props.isGettingCall){
+          console.log(props.isGettingCall)
+          props.sendCallIsDeclined()
+        }
+      }, 20000)*/
+      const timer = setTimeout(() => {
+        if(props.isGettingCall){
+          console.log(props.isGettingCall)
+          props.sendCallIsDeclined()
+        }
+      }, 20000);
+      return () => clearTimeout(timer);
     },[])
 
     return (

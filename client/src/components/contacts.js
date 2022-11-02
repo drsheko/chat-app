@@ -59,7 +59,7 @@ function Contacts(props) {
         }
       );
       var chatRoom = await res.data.chatRoom.room;
-      console.log(res.data)
+      
       if(res.data.chatRoom.isNew){ console.log('created room')
         
         setChatRooms(prevState => [chatRoom, ...prevState])
@@ -216,9 +216,14 @@ function Contacts(props) {
                             <Avatar alt="Profile Picture" src={require('../images/unknown.jpg')} />
                           </ListItemAvatar>
                           <ListItemText primary={fr.username}
-                              secondary={r.messages.length > 0 ? (
-                                <div>{r.messages[r.messages.length - 1].message}</div>
-                              ) : (
+                              secondary={r.messages.length > 0 ? 
+                                
+                                  r.messages[r.messages.length - 1].type ==='photo'?
+                                  <div>PHOTO MESSAGE</div>
+                                  :  <div>{r.messages[r.messages.length - 1].message}</div>
+                                
+                               
+                              : (
                                 ""
                               )}
                           />

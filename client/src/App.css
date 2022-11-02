@@ -98,3 +98,13 @@
      transform:scale(1)
     }
    }
+   .image-upload > input
+{
+    display: none;
+}
+.fileInput-icon
+{
+    width: 80px;
+    cursor: pointer;
+    margin:auto 5px;
+}

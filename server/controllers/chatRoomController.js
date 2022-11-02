@@ -17,6 +17,12 @@ exports.get_chatRoomByRoomId = async(req,res) => {
     var chatId =req.body.roomId;
     try{    
         var chatRoom = ChatRoom.findById(chatId)
+            .populate({
+                path:'messages',
+                populate:{
+                    path:'postedBy'
+                }
+            })
            .exec( (error,room)=>{
                 if (error){  return res.status(500).json({success:false, error})
                    

@@ -13,6 +13,7 @@ const readByRecipientSchema = new Schema({
       message: mongoose.Schema.Types.Mixed,
       postedBy: { type: Schema.Types.ObjectId, ref: "user"},
       timestamp:{type: Date, default: new Date()},
+      type:{type:String, default:'text'},
       readByRecipients: [readByRecipientSchema],
     }
   );
@@ -31,6 +32,11 @@ const readByRecipientSchema = new Schema({
     catch(error){
       throw error;
     }
+  }
+  messageSchema.statics.UpdateMessage = async() => {
+    Message.updateMany({},{
+      $set:{'type':'text'}
+    })
   }
   messageSchema.statics.createPostInChatRoom = async function (chatRoom, message, postedBy) {
     try {

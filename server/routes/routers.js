@@ -2,10 +2,12 @@ const router = require("express").Router();
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
 const chatRoomController = require('../controllers/chatRoomController')
-const messageController = require('../controllers/messageController')
+const messageController = require('../controllers/messageController');
+const uploadController = require('../controllers/uploadController')
 router.get("/", function (req, res, next) {
   res.render("home");
 });
+
 // sign-up  (Create an account)
 router.post("/api/sign-up", userController.signup_post);
 
@@ -41,9 +43,13 @@ router.post('/api/:userid/all-rooms/join', chatRoomController.getAllChatRoomsByU
 
 // create a new message 
 router.post('/api/messages/newMessage/create', messageController.create_message);
-
+// update messageType 
+router.post('/api/updateAllMessages', messageController.updateMessage)
 // get unread messages 
 router.post('/api/messages/all/unread', messageController.get_unreadMessages);
+
+// upload Photo Message to Firebase
+router.post('/api/messages/photo-msg/upload', messageController.uploadPhotoMsg)
 
 // Mark all chatRoom`s messages as READ by user
 router.post('/api/messages/chatRoom/mark-read', messageController.mark_AllRoomMessages_AsRead_ByUser)
