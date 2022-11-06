@@ -164,7 +164,7 @@ socket.on('chat photo message', (data) => {
 	   });
 	   socket.on('end call', (data) => {
 		console.log('call end')
-		io.in(data.room).emit('recieve end call');
+		io.in(data.room).emit('recieve end call',{data});
 	   });	
 	   socket.on('disconnect', (reason) => {
 	  // update user status to offline in db

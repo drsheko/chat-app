@@ -11,7 +11,17 @@ function Timer(props) {
       } = useStopwatch({ autoStart: true });
     
     useEffect(()=>{
-      props.setDuration(`${hours} : ${minutes} : ${seconds}`)
+     // props.setDuration(`${hours} : ${minutes} : ${seconds}`);
+      var callSummary 
+      if(hours ==0 &&minutes==0){
+        callSummary = `${seconds}s`
+      }
+      else if(hours==0){
+         callSummary =`${minutes}m:${seconds}s`
+      }else{
+         callSummary =`${hours}h:${minutes}m:${seconds}s`
+      }
+      props.setDuration(callSummary)
     },[seconds,minutes,hours])
       return (
         <div style={{textAlign: 'center' , position:'absolute', top:'0', left:'0' ,backgroundColor:'white'}}>

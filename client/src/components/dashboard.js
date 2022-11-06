@@ -49,8 +49,9 @@ function Dashboard() {
   const [decline, setDecline] = useState(false);
   const [chatRooms, setChatRooms] = useState(null);
   const [isCallAnswered, setIsCallAnswered] =useState(false);
-  const[callRecipient, setCallRecipient] = useState(null)
-  const [ callSummaryMessage, setCallSummaryMessage] =useState(null)
+  const [callRecipient, setCallRecipient] = useState(null)
+  const [ callSummaryMessage, setCallSummaryMessage] =useState(null);
+  const [callDuration, setCallDuration] = useState('')
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -116,21 +117,7 @@ function Dashboard() {
       }
     );
   };
-  /*const sendCallSummaryMessage = async (chat, message) => {
-    var url = "http://localhost:3001/api/messages/newMessage/create";
-    try {
-      var res = await axios.post(url, {
-        chatId: chat._id,
-        message,
-        sender: user._id,
-      });
-      var newMessage = await res.data.msg;
-      console.log(newMessage)
-      setCallSummaryMessage(newMessage)
-    } catch (error) {
-      console.log(error);
-    }
-  };*/
+
   const createMessage = async (message,chat) => {
     var url = "http://localhost:3001/api/messages/newMessage/create";
     try {
@@ -160,6 +147,16 @@ function Dashboard() {
     setIsGettingCall(false);
     setCurrentCall(null)
     currentCallRef.current = null;
+  }
+
+  const sendCallIsEnded = async() =>{
+    var chatRoom =await getChatRoomByCallerId(currentCall.peer);
+    var newMessage = await createMessage(callDuration, chatRoom);
+    setCallSummaryMessage(newMessage);
+    socket.emit("end call", {
+      room: chatRoom._id,
+      message: newMessage
+    }) 
   }
   const cancelCall =async() => {
     setIsGettingCall(false);
@@ -206,10 +203,11 @@ function Dashboard() {
       
       // close the call from my end
       //currentCallRef.close()
+      /*
      var chatRoom = await getChatRoomByCallerId(currentCall.peer)
      socket.emit("end call", {
       room: chatRoom._id,
-    }) 
+    }) */
        // close the call from my end
        currentCallRef.current.close();
        currentCallRef.current = null;
@@ -286,17 +284,22 @@ function Dashboard() {
     if(socket){ 
       socket.on("recieve end call", (data) => {
         console.log('got end call')
+        console.log(data)
+        setCallSummaryMessage(data.data.message)
         endCall();
         
       });
       socket.on("cancel call request", (data) => {
         console.log('caller canecl call');
+        console.log(data.message)
         setCallSummaryMessage(data.message)
         setIsGettingCall(false)
       })
       socket.on("decline call request", (data) => {
-        console.log('callee decline call')
-        setCallSummaryMessage(data.message)
+        console.log('callee decline call');
+        
+        setCallSummaryMessage(data.data.message)
+        
         cancelCall()
       })
     }
@@ -330,7 +333,9 @@ function Dashboard() {
             <VideoPlayer
               ref={{localVideoRef,remoteVideoRef}}
               setIsCallEnded={setIsCallEnded}
+              setCallDuration ={setCallDuration}
               endCall={endCall}
+              sendCallIsEnded ={sendCallIsEnded}
             />
 
           :isGettingCall?

@@ -409,6 +409,7 @@ function ChatBox(props) {
       } 
     }
     if(props.callSummaryMessage){
+      console.log('updatemessages')
      getChatMessagesByRoomId(chat._id);
      props.setCallSummaryMessage(null)
     }
