@@ -125,6 +125,7 @@ function Dashboard() {
         chatId: chat._id,
         message,
         sender: user._id,
+        type:'call'
       });
       var newMessage = await res.data.msg;
       return newMessage
@@ -376,7 +377,7 @@ function Dashboard() {
                   <Paper elevation='20' sx={{ position: 'static', top: 0, left: 0, right: 0 }} >
                   <Toolbar>
                   <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Shady
+                    {user.username}
                     </Typography>
                     <Typography variant="h4" component="div" color='primary' sx={{ flexGrow: 1 }}>
                     {key}

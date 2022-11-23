@@ -145,13 +145,19 @@ io.on('connection', (socket) => {
 		})
 	})
 
-	socket.on('chat message', (data) => {
-		io.in(data.room).emit('message',{message:data.message, postedBy:data.sender, chatRoom:data.room});
+	socket.on('chat message', (data) => { console.log(data)
+		io.in(data.room).emit('message',{message:data.message, postedBy:data.sender, chatRoom:data.room, type:data.type});
 	   });
 // photo message
 socket.on('chat photo message', (data) => {
 	console.log(data)
 	io.in(data.newMessage.chatRoom).emit('photo message',{msg:data.newMessage});
+   });
+
+   // voice message
+socket.on('chat voice message', (data) => {
+	console.log(data)
+	io.in(data.newMessage.chatRoom).emit('voice message',{msg:data.newMessage});
    });
 	   socket.on('cancel call',(data) => {
 		console.log('cancel call from caller', data.room)

@@ -161,13 +161,53 @@ function Contacts(props) {
         return room;
       });
       
-      console.log(updatedChatRooms)
+      console.log('rooms',updatedChatRooms)
       if (updatedChatRooms.length>0) {
         console.log('update rooms')
         setChatRooms(updatedChatRooms);
         console.log("updated", updatedChatRooms);
       }
     });
+    socket.on("photo message", (message) => {
+      console.log('got msg', message)
+    var updatedChatRooms = chatRooms.map((room) => {
+      if (room._id == message.msg.chatRoom) {
+         
+        room.messages = [...room.messages, message.msg];
+        room.unreadedMessages +=1;
+        
+        return room;
+      }
+      return room;
+    });
+    
+    console.log('rooms',updatedChatRooms)
+    if (updatedChatRooms.length>0) {
+      console.log('update rooms')
+      setChatRooms(updatedChatRooms);
+      console.log("updated", updatedChatRooms);
+    }
+  });
+  socket.on("voice message", (message) => {
+    console.log('got msg', message)
+  var updatedChatRooms = chatRooms.map((room) => {
+    if (room._id == message.msg.chatRoom) {
+       
+      room.messages = [...room.messages, message.msg];
+      room.unreadedMessages +=1;
+      
+      return room;
+    }
+    return room;
+  });
+  
+  console.log('rooms',updatedChatRooms)
+  if (updatedChatRooms.length>0) {
+    console.log('update rooms')
+    setChatRooms(updatedChatRooms);
+    console.log("updated", updatedChatRooms);
+  }
+});
     }
     
   }, []);
@@ -220,7 +260,10 @@ function Contacts(props) {
                                 
                                   r.messages[r.messages.length - 1].type ==='photo'?
                                   <div>PHOTO MESSAGE</div>
-                                  :  <div>{r.messages[r.messages.length - 1].message}</div>
+                                  : r.messages[r.messages.length - 1].type ==='voice'?
+                                  <div>VOICE MESSAGE</div>
+                                  :
+                                  <div>{r.messages[r.messages.length - 1].message}</div>
                                 
                                
                               : (

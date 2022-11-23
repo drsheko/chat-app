@@ -40,9 +40,25 @@ exports.uploadPhotoMsg = [
          uploadedFileURL = `https://firebasestorage.googleapis.com/v0/b/${snapshot.ref._location.bucket}/o/${snapshot.ref._location.path_}?alt=media`
             return res.status(200).json({URL:uploadedFileURL})
         })
-        .catch((error) => res.status(500).json({error:'shady'}));
+        .catch((error) => res.status(500).json({error:error}));
     }
 ]
+exports.uploadVoiceMsg = [
+    upload.single("voiceMsg"),
+    async(req,res) => {
+        var uploadedFileURL
+        const file = req.file;
+        const fileName = file.originalname+new Date()
+      const voiceRef = ref(storage, fileName);
+      const metatype = { contentType: file.mimetype, name: file.originalname };
+      await uploadBytes(voiceRef, file.buffer, metatype)
+        .then((snapshot) => {
+         uploadedFileURL = `https://firebasestorage.googleapis.com/v0/b/${snapshot.ref._location.bucket}/o/${snapshot.ref._location.path_}?alt=media`
+            return res.status(200).json({URL:uploadedFileURL})
+        })
+        .catch((error) => res.status(500).json({error:error}));
+    }
+  ]
 
 exports.create_message = async(req,res) => {
     var chatId = req.body.chatId;

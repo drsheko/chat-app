@@ -14,12 +14,12 @@ function Timer(props) {
      // props.setDuration(`${hours} : ${minutes} : ${seconds}`);
       var callSummary 
       if(hours ==0 &&minutes==0){
-        callSummary = `${seconds}s`
+        callSummary = `${seconds} secs`
       }
       else if(hours==0){
-         callSummary =`${minutes}m:${seconds}s`
+         callSummary =`${minutes} mins ${seconds} secs`
       }else{
-         callSummary =`${hours}h:${minutes}m:${seconds}s`
+         callSummary =`${hours} hr ${minutes} mins ${seconds} secs`
       }
       props.setDuration(callSummary)
     },[seconds,minutes,hours])

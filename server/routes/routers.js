@@ -51,6 +51,8 @@ router.post('/api/messages/all/unread', messageController.get_unreadMessages);
 // upload Photo Message to Firebase
 router.post('/api/messages/photo-msg/upload', messageController.uploadPhotoMsg)
 
+// upload Voice Message to Firebase
+router.post('/api/messages/voice-msg/upload', messageController.uploadVoiceMsg)
 // Mark all chatRoom`s messages as READ by user
 router.post('/api/messages/chatRoom/mark-read', messageController.mark_AllRoomMessages_AsRead_ByUser)
 module.exports = router;

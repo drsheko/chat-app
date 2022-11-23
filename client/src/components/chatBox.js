@@ -37,10 +37,12 @@ import { styled } from "@mui/material/styles";
 import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import KeyboardVoiceSharpIcon from '@mui/icons-material/KeyboardVoiceSharp';
 import CircularProgress from "@mui/material/CircularProgress";
 import { red, blue } from "@mui/material/colors";
 import { Container, Stack } from "@mui/material";
 import Calling from "./Calling";
+import AudioRecorder from "./audioRecorder";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -106,6 +108,15 @@ function ChatBox(props) {
   const [isUploading, setIsUploading] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
   const [image, setImage] = useState(null);
+  const [audioRecorder, setAudioRecorder] = useState(false);
+  const [voiceMsg, setVoiceMsg] = useState(null);
+  const [voiceMsgURL, setVoiceMsgURL] = useState(null)
+
+function toggleAudioRecorder(){
+  setAudioRecorder(!audioRecorder);
+  console.log('recorder')
+}
+
   function handleOnEnter(text) {
     console.log("enter", text);
   }
@@ -248,6 +259,7 @@ function ChatBox(props) {
   };
 
   const createPhotoMsg = async (message) => {
+    
     var uploadedFileURL;
     const formData = new FormData();
     formData.append("photoMsg", upload);
@@ -256,7 +268,9 @@ function ChatBox(props) {
         method: "post",
         url: "http://localhost:3001/api/messages/photo-msg/upload",
         data: formData,
+      
         headers: { "Content-Type": "multipart/form-data" },
+        
       });
 
       uploadedFileURL = await response.data.URL;
@@ -273,6 +287,46 @@ function ChatBox(props) {
         message: uploadedFileURL,
         sender: user._id,
         type: "photo",
+      });
+      var newMessage = await res.data.msg;
+      return newMessage;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const createVoiceMsg = async (message) => {
+    console.log('local createVoiceMsg- blob' , message)
+    var uploadedVoiceURL;
+    const formData = new FormData();
+    formData.append("voiceMsg", message);
+    try {
+      const response = await axios({
+        method: "post",
+        url: "http://localhost:3001/api/messages/voice-msg/upload",
+        data: formData,
+      
+        headers: { "Content-Type": "multipart/form-data" },
+        
+      });
+
+      uploadedVoiceURL = await response.data.URL;
+     
+      setVoiceMsgURL(await uploadedVoiceURL);
+      console.log('VOICE URL :', uploadedVoiceURL)
+      console.log('in first try voiceMSGURL', voiceMsgURL)
+      
+      //setVoiceMsg(null)
+    } catch (error) {
+      console.log(error);
+    }
+    var url = "http://localhost:3001/api/messages/newMessage/create";
+    try {
+      console.log('second try, voiceMsgURL', uploadedVoiceURL)
+      var res = await axios.post(url, {
+        chatId: chat._id,
+        message: uploadedVoiceURL,
+        sender: user._id,
+        type: "voice",
       });
       var newMessage = await res.data.msg;
       return newMessage;
@@ -297,11 +351,41 @@ function ChatBox(props) {
     setIsUploading(false);
     setmessages((prevState) => [
       ...prevState,
-      {message:newMessage.message, postedBy:{_id:newMessage.postedBy}, type:newMessage.type, chatRoom:newMessage.chatRoom, timestamp:newMessage.timestamp}
+      {
+        message:newMessage.message,
+        postedBy:{_id:newMessage.postedBy},
+        type:newMessage.type,
+        chatRoom:newMessage.chatRoom,
+        timestamp:newMessage.timestamp}
     ]);
     console.log('user', user)
     console.log('MESSAGES HERE:', messages[messages.length-1]);
     console.log(messages)
+  };
+  const sendVoiceMessage = async (e,message) => {
+    e.preventDefault();
+    
+    var newMessage = await createVoiceMsg(message);
+    console.log('Voice message created',newMessage);
+
+    socket.emit("chat voice message", {
+      newMessage,
+      /*room: chat._id,
+      sender: user,
+      message: uploadURL,
+      type:'photo'*/
+    });
+    
+    setmessages((prevState) => [
+      ...prevState,
+      {
+        message:newMessage.message,
+        postedBy:{_id:newMessage.postedBy},
+        type:newMessage.type,
+        chatRoom:newMessage.chatRoom,
+        timestamp:newMessage.timestamp}
+    ]);
+    
   };
   const sendMessage = (e) => {
     e.preventDefault();
@@ -309,11 +393,12 @@ function ChatBox(props) {
       room: chat._id,
       sender: user,
       message: text,
+      type:'text'
     });
     createMessage(text);
     setmessages((prevState) => [
       ...prevState,
-      { message: text, postedBy: user },
+      { message: text, postedBy: user, type:'text' },
     ]);
     setText("");
   };
@@ -353,6 +438,7 @@ function ChatBox(props) {
 
     socket.on("message", (data) => {
       if (data.postedBy._id !== user._id) {
+        console.log('text msg received ',data)
         setmessages((prevState) => [...prevState, data]);
       }
     });
@@ -364,6 +450,20 @@ function ChatBox(props) {
       }
     });
   }, []);
+  useEffect(() => {
+    socket.on("voice message", (data) => { console.log('receieved voice msg ',data.msg)
+      if (data.msg.postedBy !== user._id) {
+        setmessages((prevState) => [...prevState, data.msg]);
+      }
+    });
+  }, []);
+  /*useEffect((e)=>{
+    if(voiceMsg != null){
+      console.log('voice message detected')
+      sendVoiceMessage(e);
+      setVoiceMsg(null)
+    }
+  },[voiceMsg])*/
   useEffect(() => {
     if (document.readyState === "complete") {
       console.log("readiiiiiiiiiiiiiii");
@@ -400,7 +500,6 @@ function ChatBox(props) {
       try {
         var res = await axios.post(url, {
           roomId : chatId
-          
         });
         var messages = await res.data.room.messages;
         setmessages(messages)
@@ -554,13 +653,16 @@ function ChatBox(props) {
                 <label for="file-input">
                   <CollectionsIcon className="fileInput-icon" />
                 </label>
+               
                 <input
                   id="file-input"
                   type="file"
                   onChange={handleUploadFile}
                 />
               </div>
-
+             <audio hidden={!audioRecorder} controls></audio>
+             <AudioRecorder  sendVoiceMessage={sendVoiceMessage}/>
+             
               <InputEmoji
                 value={text}
                 onChange={setText}

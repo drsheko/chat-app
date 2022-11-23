@@ -4,7 +4,11 @@ import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid';
+import  Typography  from "@mui/material/Typography";
 import moment from 'moment'
+import PhoneMissedRoundedIcon from '@mui/icons-material/PhoneMissedRounded';
+import PhoneSharpIcon from '@mui/icons-material/PhoneSharp';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -60,10 +64,66 @@ function ChatMsg({message, userId}) {
                     fontWeight: "700",
                     }}
                 >
-                     {message.type==='photo'?
+                     {
+                    message.type==='photo'?
                      
                       <img src={message.message}  style={{width:'150px',height:'150px'}}/>
-                      : <h3>{message.message}</h3>
+                      : message.type==='text'?
+                       <h3>{message.message}</h3>
+                       :message.type==='call'?
+                       message.message==='missed'?
+                       
+                        <Grid container spacing={1} style={{width:'180px'}}>
+                            <Grid item xs={3}>
+                              <div style={{borderRadius:'50%', height:'34px', width:'34px', backgroundColor:'red',textAlign:'center' ,paddingTop:'3px'}} >
+                              <PhoneMissedRoundedIcon style={{color:'white'}}/>
+                              </div>
+                            </Grid>
+                            <Grid item xs={9}>
+                              <Stack>
+                                <Typography variant="h6" >
+                                  Missed Call
+                                </Typography>
+                                <Typography variant='caption'>
+                                   Tap here to call again
+                                </Typography>
+                               
+                              </Stack>
+                            </Grid>
+                        </Grid>
+                          
+                           
+                        
+                       
+                       :
+                        
+                          <Grid container spacing={1} style={{width:'180px'}}>
+                            <Grid item xs={3}>
+                              <div 
+                                style={{borderRadius:'50%', height:'34px',
+                                width:'34px', backgroundColor:'green',textAlign:'center' ,
+                                paddingTop:'3px'}} >
+                                  <PhoneSharpIcon style={{color:'white'}}/>
+                              </div>
+                            </Grid>
+                            <Grid item xs={9}>
+                                <Stack>
+                                <Typography variant="h6" >
+                                  Media Call
+                                </Typography>
+                                  <Typography variant='caption'>
+                                      {message.message}
+                                  </Typography>
+                                </Stack>
+                            </Grid>
+                          </Grid>
+                        
+                          
+                        
+                        
+                       :message.type==='voice'?
+                       <audio src={message.message} controls/>
+                       :''
                   
                   }
                     
@@ -93,8 +153,56 @@ function ChatMsg({message, userId}) {
                 >
                   {message.type==='photo'?
                     <img src={message.message} alt='photMsg' style={{width:'150px',height:'150px'}}/>
-                    : <h3>{message.message}</h3>
-                  
+                    : message.type==='text'?
+                    <h3>{message.message}</h3>
+                    :message.type==='call'?
+                       message.message==='missed'?
+                       
+                       <Grid container spacing={1} style={{width:'180px'}}>
+                       <Grid item xs={3}>
+                         <div style={{borderRadius:'50%', height:'34px', width:'34px', backgroundColor:'red',textAlign:'center' ,paddingTop:'3px'}} >
+                         <PhoneMissedRoundedIcon style={{color:'white'}}/>
+                         </div>
+                       </Grid>
+                       <Grid item xs={9}>
+                         <Stack>
+                           <Typography variant="h6" >
+                             Missed Call
+                           </Typography>
+                           <Typography variant='caption'>
+                              Tap here to call again
+                           </Typography>
+                          
+                         </Stack>
+                       </Grid>
+                   </Grid>
+                        
+                       :
+                        
+                            <Grid container spacing={1} style={{width:'180px'}}>
+                            <Grid item xs={3}>
+                              <div 
+                                style={{borderRadius:'50%', height:'34px',
+                                width:'34px', backgroundColor:'green',textAlign:'center' ,
+                                paddingTop:'3px'}} >
+                                  <PhoneSharpIcon style={{color:'white'}}/>
+                              </div>
+                            </Grid>
+                            <Grid item xs={9}>
+                                <Stack>
+                                <Typography variant="h6" >
+                                  Media Call
+                                </Typography>
+                                  <Typography variant='caption'>
+                                      {message.message}
+                                  </Typography>
+                                </Stack>
+                            </Grid>
+                          </Grid>
+                         
+                       :message.type==='voice'?
+                       <audio src={message.message} controls/>
+                       :''
                   }
                    
                     
