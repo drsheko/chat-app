@@ -12,6 +12,7 @@ import Dashboard from './components/dashboard';
 import Home from './components/home';
 import SideNav from './components/sideNav';
 import ChatBox from './components/chatBox';
+import Profile from './components/profile';
 import { useSocket } from './context/socketProvider';
 import { usePeer } from './context/peerProvider';
 
@@ -43,14 +44,12 @@ function App() {
 
   return(
     <UserContext.Provider value={user}>
-    
-      
-      
       <Routes>
         <Route path='/' element={<Home userId={userId}/>} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login getUser={getUser} />} />
         <Route path='/dashboard' element={<Dashboard/>} />  
+        <Route path='/profile/:id' element={<Profile />} />  
         </Routes>
 
     </UserContext.Provider>

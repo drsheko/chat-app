@@ -103,8 +103,6 @@ function Dashboard() {
         const call = myPeer.call(friendId, localStream);
         currentCallRef.current = call;
         setLocalVideo(localStream);
-        
-
         call.on("stream", (remoteStream) => {
           setIsCallAnswered(true);
           setRemoteVideo(remoteStream)
@@ -187,21 +185,20 @@ function Dashboard() {
       setIsCalling(false);
     if (!currentCallRef.current) return;
     try { 
-     console.log('try')
       // close cam and mic
       for (const track of localVideoRef.current.srcObject.getTracks()) {
-        track.stop(); console.log('closed')
+        track.stop(); 
       }
       for (const track of remoteVideoRef.current.srcObject.getTracks()) {
-        track.stop();   console.log(2)
+        track.stop();   
       } 
       localVideoRef.current.srcObject = null;
       remoteVideoRef.current.srcObject = null;
       for (const track of localVideo.getTracks()) {
-        track.stop(); console.log('closed2')
+        track.stop();
       }
       for (const track of remoteVideo.getTracks()) {
-        track.stop();   console.log(22)
+        track.stop();   
       } 
       setLocalVideo(null)
       setRemoteVideo(null)
@@ -305,23 +302,16 @@ function Dashboard() {
   useEffect(() => {
     if(socket){ 
       socket.on("recieve end call", (data) => {
-        console.log('got end call')
-        console.log(data)
         setCallSummaryMessage(data.data.message)
         endCall();
         
       });
-      socket.on("cancel call request", (data) => {
-        console.log('caller canecl call');
-        console.log(data.message)
+      socket.on("cancel call request", (data) => {     
         setCallSummaryMessage(data.message)
         setIsGettingCall(false)
       })
-      socket.on("decline call request", (data) => {
-        console.log('callee decline call');
-        
-        setCallSummaryMessage(data.data.message)
-        
+      socket.on("decline call request", (data) => {       
+        setCallSummaryMessage(data.data.message);
         cancelCall()
       })
     }

@@ -199,3 +199,9 @@ border-radius:25px;
       height: 15px;
   }
 }
+
+.profile-header {
+  transform: translateY(6rem);
+ 
+}
+
