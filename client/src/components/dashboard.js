@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef , useCallback} from "react";
+import { Link } from "react-router-dom";
 import { UserContext } from "../App";
 import PeerProvider, { usePeer } from "../context/peerProvider";
 import SocketProvider, { useSocket } from "../context/socketProvider";
@@ -26,6 +27,7 @@ import GettingCall from "./GettingCall";
 import Calling from "./Calling";
 import VideoPlayer from "./videoPlayer";
 import Settings from "./settings";
+import Profile from "./profile";
 function Dashboard() {
   var user = useContext(UserContext);
   var id = user._id;
@@ -51,7 +53,9 @@ function Dashboard() {
   const [isCallAnswered, setIsCallAnswered] =useState(false);
   const [callRecipient, setCallRecipient] = useState(null)
   const [ callSummaryMessage, setCallSummaryMessage] =useState(null);
-  const [callDuration, setCallDuration] = useState('')
+  const [callDuration, setCallDuration] = useState('');
+  const [isProfileOpen, setIsProfileOpen] =useState(false);
+  const [profileId, setProfileId] = useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -259,7 +263,22 @@ function Dashboard() {
   };
  
   // --------------------useEffect Section----------------------------------------
-  useEffect(() => {
+  const getAllChatRooms = useCallback(async () => {
+    console.log('back')
+    var userId = user._id;
+    var url = "http://localhost:3001/api/user/all-rooms/join";
+    try {
+      var res = await axios.post(
+        `http://localhost:3001/api/${userId}/all-rooms/join`
+      );
+      var rooms = await res.data.rooms;
+      setChatRooms(rooms);
+    } catch (error) {
+      console.log(error);
+    }
+  },[])
+
+ /* useEffect(() => {
     const getAllChatRooms = async () => {
       var userId = user._id;
       var url = "http://localhost:3001/api/user/all-rooms/join";
@@ -274,7 +293,9 @@ function Dashboard() {
       }
     };
     getAllChatRooms();
-  }, []);
+    // set profile Id == current user id
+    setProfileId(user._id)
+  }, []);*/
   useEffect(() => {
     if (chatRooms !== null) {
       socket.emit("join rooms", chatRooms);
@@ -330,7 +351,12 @@ function Dashboard() {
   
   return (
     <div>
-          {isCallAnswered?
+          {
+          isProfileOpen?
+            <Profile id={profileId} setIsProfileOpen={setIsProfileOpen}/>
+
+          
+          :isCallAnswered?
             <VideoPlayer
               ref={{localVideoRef,remoteVideoRef}}
               setIsCallEnded={setIsCallEnded}
@@ -404,7 +430,7 @@ function Dashboard() {
                             vertical: 'top',
                             horizontal: 'right',
                           }}
-                          keepMounted
+                          
                           transformOrigin={{
                             vertical: 'top',
                             horizontal: 'right',
@@ -412,7 +438,9 @@ function Dashboard() {
                           open={Boolean(anchorEl)}
                           onClose={handleClose}
                         >
-                          <MenuItem >Profile</MenuItem>
+                          <MenuItem onClick={()=>{setIsProfileOpen(true)}}>
+                            Profile
+                          </MenuItem>
                           <MenuItem >My account</MenuItem>
                         </Menu>
                       </div>

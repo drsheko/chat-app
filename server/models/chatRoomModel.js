@@ -15,7 +15,8 @@ chatRoomSchema.statics.getChatRoomsByUserId = async function (userId) {
   try {
     const rooms = await this.find({ userIds: 
       { $all:[ userId] } })
-      .populate('messages');
+      .populate('messages')
+      .populate('userIds');
      
     return rooms;
   } catch (error) {

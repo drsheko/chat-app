@@ -437,24 +437,34 @@ function toggleAudioRecorder(){
     getRecipients();
 
     socket.on("message", (data) => {
+      console.log('current chat', chat);
+      console.log('current message', data)
       if (data.postedBy._id !== user._id) {
-        console.log('text msg received ',data)
-        setmessages((prevState) => [...prevState, data]);
+        if(chat._id === data.chatRoom){
+          console.log('text msg received ',data)
+         setmessages((prevState) => [...prevState, data]);
+        }
+        
       }
     });
   }, []);
   useEffect(() => {
     socket.on("photo message", (data) => {
+      if(chat._id === data.chatRoom){
       if (data.msg.postedBy !== user._id) {
         setmessages((prevState) => [...prevState, data.msg]);
       }
+
+    }
     });
   }, []);
   useEffect(() => {
     socket.on("voice message", (data) => { console.log('receieved voice msg ',data.msg)
+    if(chat._id === data.chatRoom){
       if (data.msg.postedBy !== user._id) {
         setmessages((prevState) => [...prevState, data.msg]);
       }
+    }
     });
   }, []);
   /*useEffect((e)=>{
