@@ -43,6 +43,7 @@ import { red, blue } from "@mui/material/colors";
 import { Container, Stack } from "@mui/material";
 import Calling from "./Calling";
 import AudioRecorder from "./audioRecorder";
+import Notification from "./notification";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -110,12 +111,8 @@ function ChatBox(props) {
   const [image, setImage] = useState(null);
   const [audioRecorder, setAudioRecorder] = useState(false);
   const [voiceMsg, setVoiceMsg] = useState(null);
-  const [voiceMsgURL, setVoiceMsgURL] = useState(null)
-
-function toggleAudioRecorder(){
-  setAudioRecorder(!audioRecorder);
-  console.log('recorder')
-}
+  const [voiceMsgURL, setVoiceMsgURL] = useState(null);
+  const [notification, setNotification] =useState(null);
 
   function handleOnEnter(text) {
     console.log("enter", text);
@@ -123,7 +120,6 @@ function toggleAudioRecorder(){
 
   const handleUploadFile = async (e) => {
     var file = e.target.files[0];
-
     setUpload(file);
     scrollToBottom();
     setIsSelected(true);
@@ -258,8 +254,7 @@ function toggleAudioRecorder(){
     }
   };
 
-  const createPhotoMsg = async (message) => {
-    
+  const createPhotoMsg = async (message) => {   
     var uploadedFileURL;
     const formData = new FormData();
     formData.append("photoMsg", upload);
@@ -268,9 +263,7 @@ function toggleAudioRecorder(){
         method: "post",
         url: "http://localhost:3001/api/messages/photo-msg/upload",
         data: formData,
-      
-        headers: { "Content-Type": "multipart/form-data" },
-        
+        headers: { "Content-Type": "multipart/form-data" },      
       });
 
       uploadedFileURL = await response.data.URL;
@@ -304,24 +297,16 @@ function toggleAudioRecorder(){
         method: "post",
         url: "http://localhost:3001/api/messages/voice-msg/upload",
         data: formData,
-      
-        headers: { "Content-Type": "multipart/form-data" },
-        
+        headers: { "Content-Type": "multipart/form-data" }, 
       });
 
       uploadedVoiceURL = await response.data.URL;
-     
       setVoiceMsgURL(await uploadedVoiceURL);
-      console.log('VOICE URL :', uploadedVoiceURL)
-      console.log('in first try voiceMSGURL', voiceMsgURL)
-      
-      //setVoiceMsg(null)
     } catch (error) {
       console.log(error);
     }
     var url = "http://localhost:3001/api/messages/newMessage/create";
     try {
-      console.log('second try, voiceMsgURL', uploadedVoiceURL)
       var res = await axios.post(url, {
         chatId: chat._id,
         message: uploadedVoiceURL,
@@ -339,14 +324,8 @@ function toggleAudioRecorder(){
     e.preventDefault();
     setIsUploading(true);
     var newMessage = await createPhotoMsg();
-    console.log(newMessage);
-
     socket.emit("chat photo message", {
       newMessage,
-      /*room: chat._id,
-      sender: user,
-      message: uploadURL,
-      type:'photo'*/
     });
     setIsUploading(false);
     setmessages((prevState) => [
@@ -370,10 +349,6 @@ function toggleAudioRecorder(){
 
     socket.emit("chat voice message", {
       newMessage,
-      /*room: chat._id,
-      sender: user,
-      message: uploadURL,
-      type:'photo'*/
     });
     
     setmessages((prevState) => [
@@ -433,18 +408,16 @@ function toggleAudioRecorder(){
   // -------------useEffect section ---------------------------
 
   useEffect(() => {
-    scrollToBottom();
+    
     getRecipients();
-
+    scrollToBottom();
     socket.on("message", (data) => {
-      console.log('current chat', chat);
-      console.log('current message', data)
       if (data.postedBy._id !== user._id) {
         if(chat._id === data.chatRoom){
-          console.log('text msg received ',data)
          setmessages((prevState) => [...prevState, data]);
-        }
-        
+        }else{
+          setNotification(data)
+        }  
       }
     });
   }, []);
@@ -454,44 +427,33 @@ function toggleAudioRecorder(){
       if (data.msg.postedBy !== user._id) {
         setmessages((prevState) => [...prevState, data.msg]);
       }
-
+    }else{
+      setNotification(data.msg);
     }
     });
   }, []);
   useEffect(() => {
-    socket.on("voice message", (data) => { console.log('receieved voice msg ',data.msg)
+    socket.on("voice message", (data) => { 
     if(chat._id === data.chatRoom){
       if (data.msg.postedBy !== user._id) {
         setmessages((prevState) => [...prevState, data.msg]);
       }
+    }else{
+      setNotification(data.msg)
     }
     });
   }, []);
-  /*useEffect((e)=>{
-    if(voiceMsg != null){
-      console.log('voice message detected')
-      sendVoiceMessage(e);
-      setVoiceMsg(null)
-    }
-  },[voiceMsg])*/
+
+  useEffect(()=>{
+    console.log('we received notification', notification)
+  },[notification])
+ 
   useEffect(() => {
     if (document.readyState === "complete") {
       console.log("readiiiiiiiiiiiiiii");
       scrollToBottom();
     }
   }, [document.readyState]);
-
-  // send message on call canecl 
- /*useEffect(()=>{
-    if(props.callSummaryMessage) {
-      console.log('cancel message seeeeent', props.callSummaryMessage);
-      console.log(messages)
-      setmessages((prevState) => [...prevState, props.callSummaryMessage]);
-    }
-    else{
-      console.log('No Cancel')
-    }
-  },[props.callSummaryMessage])*/
 
   useEffect(() => {
     if (currentCallRef.current) {
@@ -550,6 +512,8 @@ function toggleAudioRecorder(){
           aria-describedby="scroll-dialog-description"
           TransitionComponent={Transition}
         >
+          { notification && <Notification notification={notification} />}
+          
           <AppBar sx={{ position: "relative" }}>
             <Toolbar>
               <IconButton
@@ -587,14 +551,14 @@ function toggleAudioRecorder(){
               </Button>
             </Toolbar>
           </AppBar>
-          <DialogContent dividers="true">
-            <DialogContentText>
+          <DialogContent dividers="true" >
+            <DialogContentText >
               <Card
                 variant="outlined"
                 id="scroll-dialog-description"
                 ref={descriptionElementRef}
                 tabIndex={-1}
-                style={{ padding: 20, minHeight: 60 }}
+                style={{ padding: 20, minHeight: '25rem'  }}
               >
                 {messages.length > 0
                   ? messages.map((m) => (
@@ -650,7 +614,7 @@ function toggleAudioRecorder(){
                 ) : (
                   ""
                 )}
-                <div ref={bottom}></div>
+                <div ref={bottom} ></div>
               </Card>
             </DialogContentText>
           </DialogContent>
@@ -667,6 +631,7 @@ function toggleAudioRecorder(){
                 <input
                   id="file-input"
                   type="file"
+                  onClick={(e)=>{e.target.value = null}}
                   onChange={handleUploadFile}
                 />
               </div>
