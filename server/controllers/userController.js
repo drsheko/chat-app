@@ -36,7 +36,6 @@ exports.signup_post = [
     .withMessage("Password confirmation should match your password ")
     .custom(async (value, { req }) => {
       if (value !== req.body.password) {
-        console.log(1);
         throw new Error("Password confirmation does not match password");
       }
       return true;
@@ -68,7 +67,7 @@ exports.signup_post = [
       // errorsArr.push('Username is aleardy token !!')
       return res
         .status(401)
-        .json({ errors: ["Username is aleardy token !!"], form });
+        .json({ errors: ["Username is aleardy taken !!"], form });
     }
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -171,7 +170,7 @@ exports.get_USER_BY_userID = async (req, res) => {
   var id = req.body.userId;
   User.findById(id, (error, user) => {
     if (error) {
-      return res.status(500).json({ success: false, error });
+      return res.status(401).json({ success: false, error });
     } else {
       return res.status(200).json({ success: true, user });
     }
@@ -191,4 +190,48 @@ exports.switch_To_Online_ByUserId = async(req,res) => {
     }
     return res.status(200).json({success:true, user})
   })
+}
+
+
+exports.changePassword = (req, res) => {
+  let userId = req.body.userId ;
+  let oldPassword = req.body.oldPassword;
+  let newPassword = req.body.newPassword;
+  User.findById(userId ,(error,user)=>{
+    if(error){
+      return res.status(401).json({success:false,error})
+    }
+    if(user){
+      bcrypt.compare(oldPassword, user.password, (error, response)=>{
+        if(error){
+          return res.status(401).json({success:false,error})
+        }
+        if(!response){
+          return res.status(200).json({success:false,error:'Incorrect password!!'})
+        }
+        if(response){
+          bcrypt.hash(newPassword,10,(error,hash)=>{
+            if(error){
+              return res.status(401).json({success:false,error})
+            }else{
+              User.findByIdAndUpdate(userId,{
+                $set:{
+                  password:hash
+                }
+              })
+              .exec((error,user)=>{
+                if(error){
+                  return res.status(401).json({success:false,error})
+                }else{
+                  return res.status(200).json({success:true})
+                }
+              })
+            }
+          })
+          
+        }
+      })
+    }
+  })
+  
 }

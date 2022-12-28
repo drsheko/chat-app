@@ -20,6 +20,9 @@ router.get("/api/logout", authController.log_out);
 // Get User by UserID 
 router.post('/api/users/user', userController.get_USER_BY_userID);
 
+// Change Password 
+router.post('/api/user/editProfile/changePassword', userController.changePassword)
+
 // switch user to be Online 
 router.put('/api/user/user-online', userController.switch_To_Online_ByUserId);
 
@@ -54,5 +57,7 @@ router.post('/api/messages/photo-msg/upload', messageController.uploadPhotoMsg)
 // upload Voice Message to Firebase
 router.post('/api/messages/voice-msg/upload', messageController.uploadVoiceMsg)
 // Mark all chatRoom`s messages as READ by user
-router.post('/api/messages/chatRoom/mark-read', messageController.mark_AllRoomMessages_AsRead_ByUser)
+router.post('/api/messages/chatRoom/mark-read', messageController.mark_AllRoomMessages_AsRead_ByUser);
+
+
 module.exports = router;

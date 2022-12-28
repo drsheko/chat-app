@@ -27,3 +27,5 @@ exports.log_out = (req, res) => {
     res.json({ success: msg });
   });
 };
+
+
