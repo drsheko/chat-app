@@ -139,24 +139,31 @@ function Contacts(props) {
 
   useEffect(() => {
     if (socket) {
+      socket.on("online", (data) => {
+        if (friends.length > 1) {
+          let update = [];
+          friends.map((fr) => {
+            if (fr._id == data.id) {
+              update.push({ ...fr, isOnline: "true" });
+              return;
+            }
+            update.push(fr);
+          });
+          setFriends(update);
+        }
+    });
       socket.on("offline", (data) => {
-        setTimeout(() => {
-          console.log("listen to offline", friends);
           if (friends.length > 1) {
             let update = [];
             friends.map((fr) => {
               if (fr._id == data.id) {
-                console.log("offlineeeeeeeee", fr);
                 update.push({ ...fr, isOnline: "false" });
                 return;
               }
               update.push(fr);
             });
-
             setFriends(update);
-            console.log("newFriends", friends);
           }
-        }, 4000);
       });
       socket.on("message", (message) => {
         console.log("got msg", message);

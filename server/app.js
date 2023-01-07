@@ -143,10 +143,13 @@ io.on('connection', (socket) => {
 		var roomsIds = data.map(r => r._id);
 		myrooms=roomsIds;
 		roomsIds.map(r => {
-			socket.join(r)
+			socket.join(r);
+			io.in(r).emit('online',{id});
 		})
 	})
+	
 
+	
 	socket.on('chat message', (data) => { console.log(data)
 		io.in(data.room).emit('message',{message:data.message, postedBy:data.sender, chatRoom:data.room, type:data.type});
 	   });
