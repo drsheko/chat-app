@@ -44,6 +44,7 @@ import { Container, Stack } from "@mui/material";
 import Calling from "./Calling";
 import AudioRecorder from "./audioRecorder";
 import Notification from "./notification";
+import resizePhoto from "../tools/compressUpload";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -84,7 +85,7 @@ const SmallAvatar = styled(Avatar)(({ theme }) => ({
 }));
 
 function ChatBox(props) {
-  var user = useContext(UserContext);
+  var {user} = useContext(UserContext);
   var socket = useSocket();
   var myPeer = usePeer();
   var chat = props.selectedChat;
@@ -120,6 +121,7 @@ function ChatBox(props) {
 
   const handleUploadFile = async (e) => {
     var file = e.target.files[0];
+    file = await resizePhoto(file)
     setUpload(file);
     scrollToBottom();
     setIsSelected(true);
@@ -135,7 +137,6 @@ function ChatBox(props) {
 
   // Answer Call
   const answerCall = (call) => {
-    console.log(call);
     var getUserMedia =
       navigator.getUserMedia ||
       navigator.webkitGetUserMedia ||
@@ -146,7 +147,6 @@ function ChatBox(props) {
         audio: true,
       },
       (localStream) => {
-        console.log("local stream created");
         call.answer(localStream);
         localVideoRef.current.srcObject = localStream;
         localVideoRef.current.play();
@@ -220,6 +220,7 @@ function ChatBox(props) {
       (recipient) => recipient._id !== user._id
     );
     setRecipients(recipientsArr);
+    
   };
 
   const createMessage = async (message) => {
@@ -337,16 +338,11 @@ function ChatBox(props) {
         chatRoom:newMessage.chatRoom,
         timestamp:newMessage.timestamp}
     ]);
-    console.log('user', user)
-    console.log('MESSAGES HERE:', messages[messages.length-1]);
-    console.log(messages)
+    
   };
   const sendVoiceMessage = async (e,message) => {
     e.preventDefault();
-    
     var newMessage = await createVoiceMsg(message);
-    console.log('Voice message created',newMessage);
-
     socket.emit("chat voice message", {
       newMessage,
     });
@@ -419,6 +415,7 @@ function ChatBox(props) {
           setNotification(data)
         }  
       }
+      console.log('sender arr',recipients)
     });
   }, []);
   useEffect(() => {
@@ -484,7 +481,8 @@ function ChatBox(props) {
      getChatMessagesByRoomId(chat._id);
      props.setCallSummaryMessage(null)
     }
-  },[props.callSummaryMessage])
+  },[props.callSummaryMessage]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -513,7 +511,8 @@ function ChatBox(props) {
           TransitionComponent={Transition}
         >
           { notification && <Notification notification={notification} />}
-          
+          {recipients== null ? ''
+          :
           <AppBar sx={{ position: "relative" }}>
             <Toolbar>
               <IconButton
@@ -530,7 +529,7 @@ function ChatBox(props) {
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 variant="dot"
               >
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+                <Avatar  src={recipients[0].avatarURL} onClick={()=>{props.openProfile(recipients[0]._id)}} />
               </StyledBadge>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
                 {recipients !== null
@@ -551,6 +550,7 @@ function ChatBox(props) {
               </Button>
             </Toolbar>
           </AppBar>
+}
           <DialogContent dividers="true" >
             <DialogContentText >
               <Card
@@ -560,13 +560,16 @@ function ChatBox(props) {
                 tabIndex={-1}
                 style={{ padding: 20, minHeight: '25rem'  }}
               >
-                {messages.length > 0
+                {
+                  recipients &&
+                messages.length > 0
                   ? messages.map((m) => (
                       <div>
-                        <ChatMsg message={m} userId={user._id} />
+                        <ChatMsg message={m} userId={user._id} sender={recipients}/>
                       </div>
                     ))
-                  : ""}
+                  : ""
+                }
                 {isSelected ? (
                   <Stack direction="row" sx={{ alignSelf: "end" }}>
                     {isUploading ? (
