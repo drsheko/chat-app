@@ -231,12 +231,13 @@ function Contacts(props) {
         {friends.length > 0 ? (
           <div className="d-flex">
             {friends.map((fr) => (
-              <div
-                onClick={() => startChat(fr._id)}
-                className="mx-2"
-                key={fr._id}
-              >
-                {fr.isOnline === "true" && (
+              <>
+                {fr.isOnline === "true" ?( 
+                  <div
+                  onClick={() => startChat(fr._id)}
+                  className="mx-2 order-1"
+                  key={fr._id}
+                >
                   <OnlineBadge
                     overlap="circular"
                     anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
@@ -244,8 +245,15 @@ function Contacts(props) {
                   >
                     <Avatar alt={fr.username} src={fr.avatarURL} />
                   </OnlineBadge>
-                )}
-                {fr.isOnline === "false" && (
+                  <div>{fr.username}</div>
+              </div>
+                )
+                : (
+                  <div
+                  onClick={() => startChat(fr._id)}
+                  className="mx-2 order-2"
+                  key={fr._id}
+                >
                   <OfflineBadge
                     overlap="circular"
                     anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
@@ -253,10 +261,13 @@ function Contacts(props) {
                   >
                     <Avatar alt={fr.username} src={fr.avatarURL} />
                   </OfflineBadge>
-                )}
-                <div>{fr.username}</div>
-              </div>
-            ))}
+                   <div>{fr.username}</div>
+                   </div>
+                )
+                }
+                </>
+                )
+            )}
           </div>
         ) : (
           "No friends"
