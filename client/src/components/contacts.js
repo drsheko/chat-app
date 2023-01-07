@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import moment from "moment";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useCallback } from "react";
 import { UserContext } from "../App";
 import { useSocket } from "../context/socketProvider";
 import Image from "react-bootstrap/Image";
@@ -11,42 +11,17 @@ import ListItem from "@mui/material/ListItem";
 import Avatar from "@mui/material/Avatar";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
-const StyledBadge = styled(Badge)(({ theme }) => ({
-  "& .MuiBadge-badge": {
-    backgroundColor: "#44b700",
-    color: "#44b700",
-    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-    "&::after": {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      borderRadius: "50%",
-      animation: "ripple 1.2s infinite ease-in-out",
-      border: "1px solid currentColor",
-      content: '""',
-    },
-  },
-  "@keyframes ripple": {
-    "0%": {
-      transform: "scale(.8)",
-      opacity: 1,
-    },
-    "100%": {
-      transform: "scale(2.4)",
-      opacity: 0,
-    },
-  },
-}));
+import OnlineBadge from "../styled_components/onlineBadge";
+import OfflineBadge from "../styled_components/offlineBadge";
+
 function Contacts(props) {
-  var user = useContext(UserContext);
+  var { user } = useContext(UserContext);
   const socket = useSocket();
   const [friends, setFriends] = useState([]);
   const [localSelectedChat, setLocalSelectedChat] = useState(null);
   const [chatRooms, setChatRooms] = useState([]);
   const [error, setError] = useState(null);
-
+  const [offlineFriend, setOfflineFriend] = useState(null);
   const startChat = async (frndID) => {
     var myID = user._id;
     var friendId = frndID;
@@ -108,18 +83,32 @@ function Contacts(props) {
     }
   };
 
+  const getFriends = useCallback(async () => {
+    try {
+      var id = user._id;
+      var url = `http://localhost:3001/api/contacts/${id}/friends`;
+      var res = await axios.post(url);
+      var data = await res.data.friends;
+      setFriends(data);
+      console.log("friends", data);
+    } catch (err) {
+      setError(err);
+    }
+  }, [user]);
+
   useEffect(() => {
-    const getFriends = async () => {
+    /* const getFriends = async () => {
       try {
         var id = user._id;
         var url = `http://localhost:3001/api/contacts/${id}/friends`;
         var res = await axios.post(url);
         var data = await res.data.friends;
         setFriends(data);
+        console.log('friends',data);
       } catch (err) {
         setError(err);
       }
-    };
+    };*/
     const getAllChatRooms = async () => {
       var userId = user._id;
       var url = "http://localhost:3001/api/user/all-rooms/join";
@@ -150,6 +139,25 @@ function Contacts(props) {
 
   useEffect(() => {
     if (socket) {
+      socket.on("offline", (data) => {
+        setTimeout(() => {
+          console.log("listen to offline", friends);
+          if (friends.length > 1) {
+            let update = [];
+            friends.map((fr) => {
+              if (fr._id == data.id) {
+                console.log("offlineeeeeeeee", fr);
+                update.push({ ...fr, isOnline: "false" });
+                return;
+              }
+              update.push(fr);
+            });
+
+            setFriends(update);
+            console.log("newFriends", friends);
+          }
+        }, 4000);
+      });
       socket.on("message", (message) => {
         console.log("got msg", message);
         var updatedChatRooms = [];
@@ -179,9 +187,9 @@ function Contacts(props) {
 
         if (updatedChatRooms.length > 0) {
           setChatRooms(updatedChatRooms);
-
         }
       });
+
       socket.on("voice message", (message) => {
         console.log("got msg", message);
         var updatedChatRooms = chatRooms.map((room) => {
@@ -202,7 +210,7 @@ function Contacts(props) {
         }
       });
     }
-  }, [socket]);
+  }, [socket,friends]);
 
   useEffect(() => {
     if (props.addedFriend) {
@@ -216,17 +224,29 @@ function Contacts(props) {
         {friends.length > 0 ? (
           <div className="d-flex">
             {friends.map((fr) => (
-              <div onClick={() => startChat(fr._id)} className="mx-2">
-                <StyledBadge
-                  overlap="circular"
-                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                  variant="dot"
-                >
-                  <Image
-                    className="avatar"
-                    src={require("../images/unknown.jpg")}
-                  />
-                </StyledBadge>
+              <div
+                onClick={() => startChat(fr._id)}
+                className="mx-2"
+                key={fr._id}
+              >
+                {fr.isOnline === "true" && (
+                  <OnlineBadge
+                    overlap="circular"
+                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                    variant="dot"
+                  >
+                    <Avatar alt={fr.username} src={fr.avatarURL} />
+                  </OnlineBadge>
+                )}
+                {fr.isOnline === "false" && (
+                  <OfflineBadge
+                    overlap="circular"
+                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                    variant="dot"
+                  >
+                    <Avatar alt={fr.username} src={fr.avatarURL} />
+                  </OfflineBadge>
+                )}
                 <div>{fr.username}</div>
               </div>
             ))}
@@ -243,12 +263,9 @@ function Contacts(props) {
                 {r.userIds.map((fr) =>
                   fr._id !== user._id ? (
                     <div>
-                      <ListItem button onClick={() => startChat(fr._id)}>
+                      <ListItem onClick={() => startChat(fr._id)}>
                         <ListItemAvatar>
-                          <Avatar
-                            alt="Profile Picture"
-                            src={require("../images/unknown.jpg")}
-                          />
+                          <Avatar alt={fr.username} src={fr.avatarURL} />
                         </ListItemAvatar>
                         <ListItemText
                           primary={fr.username}

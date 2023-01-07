@@ -132,6 +132,7 @@ app.use("/", Routers);
 io.on('connection', (socket) => {
 	
 	const id = socket.handshake.query.id;
+	var myrooms =[];
 	socket.emit('connected', id)
 	console.log('user connected to server : ',id)
 	socket.on('join', (chat) => {
@@ -139,7 +140,8 @@ io.on('connection', (socket) => {
 		socket.join(chatId)
 	});
 	socket.on('join rooms', (data)=> {
-		var roomsIds = data.map(r => r._id)
+		var roomsIds = data.map(r => r._id);
+		myrooms=roomsIds;
 		roomsIds.map(r => {
 			socket.join(r)
 		})
@@ -173,6 +175,13 @@ socket.on('chat voice message', (data) => {
 		io.in(data.room).emit('recieve end call',{data});
 	   });	
 	   socket.on('disconnect', (reason) => {
+		
+		if(myrooms.length>0){
+			myrooms.map(r=>{
+				console.log('emit in room:',r,'user disconnected:',id)
+				io.in(r).emit('offline',{id});
+			})
+		}
 	  // update user status to offline in db
 	  User.findByIdAndUpdate(id,{
 		$set:{
