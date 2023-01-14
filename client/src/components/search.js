@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 
 function Search(props) {
-  var { user } = useContext(UserContext);
+  var { user, setUser } = useContext(UserContext);
   const [form, setForm] = useState("");
   const [resultOpen, setResultOpen] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
@@ -43,32 +43,37 @@ function Search(props) {
       var contactId = searchResult[0]._id;
       var url = `http://localhost:3001/api/${user._id}/${contactId}`;
       var res = await axios.post(url);
-
-      var data = await res.data;
-      props.setAddedFriend(data.addedFriend);
+      let success = res.data.success
+      if(success){
+        var addedFriend = await res.data.addedFriend;
+      var updatedUser =res.data.user
+      setUser(updatedUser);
+      localStorage.setItem("CHAT_APP_user", JSON.stringify(updatedUser));
+      props.setAddedFriend(addedFriend);
       closeResult();
-    } catch {}
+      }
+      
+    } catch (error){
+      console.log(error)
+    }
   };
   const searchContacts = async (e) => {
     e.preventDefault();
     try {
       var url = "http://localhost:3001/api/contacts-search";
 
-      var res = await fetch(url, {
-        method: "Post",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
+      var res = await axios.post(url, {
           search: form,
-        }),
+          userId:user._id
       });
-      var data = await res.json();
-      setResultOpen(true);
-      setSearchResult(data.result);
-      setForm("");
-    } catch (err) {
-      console.log(err);
+      let success = res.data.success;
+      if(success){
+        setResultOpen(true);
+        setSearchResult(res.data.result);
+        setForm("");
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   return (
