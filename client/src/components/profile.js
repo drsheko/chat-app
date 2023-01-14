@@ -101,6 +101,24 @@ function Profile(props) {
       console.log(error);
     }
   };
+  const unfollow =async() =>{
+    alert('work')
+    let url = "http://localhost:3001/api/user/removeFriend";
+    try{
+      let res = await axios.post(url, {
+        userId:user._id,
+        friendId:id
+      })
+      let success = await res.data.success;
+      if(success){
+        let updatedUser = res.data.user;
+        setUser(updatedUser);
+        localStorage.setItem("CHAT_APP_user", JSON.stringify(updatedUser));
+      }
+    }catch(error){
+      console.log(error)
+    }
+  }
   //------------------------------------------
   useEffect(() => {
     if (user._id === id) {
@@ -189,26 +207,28 @@ function Profile(props) {
                 <div>
                   {isMyProfile ? (
                     <Button
-                      style={{
-                        backgroundColor: "#2196f3",
-                        color: "white",
-                        "&:hover": { backgroundColor: "#1976d2", color: "red" },
-                      }}
-                      className="btn  btn-sm container btn-md-md btn-block my-2 "
+                      className=" btn-sm container btn-md-md btn-block my-2 "
+                      color='primary' variant="contained"
                       onClick={() => {
                         setIsEditing(true);
                       }}
                     >
                       Edit profile
                     </Button>
-                  ) : profileUser.friends.includes(user._id) ? (
-                    <a className="btn btn-dark btn-sm container btn-md-md btn-block my-2 ">
+                  ) : user.friends.includes(id) ? (
+                    <Button className=" btn-sm container btn-md-md btn-block my-2 " 
+                    color='primary' variant="contained"
+                    onClick={unfollow}
+                    >
                       Unfollow
-                    </a>
+                    </Button>
                   ) : (
-                    <a className="btn btn-dark btn-sm container btn-md-md btn-block my-2 ">
+                    <Button className=" btn-sm container btn-md-md btn-block my-2  " 
+                    color='primary' variant="contained"
+                    
+                    >
                       Follow
-                    </a>
+                    </Button>
                   )}
 
                   <ul className="list-inline mb-0 ">
