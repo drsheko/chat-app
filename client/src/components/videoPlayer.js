@@ -14,8 +14,8 @@ const VideoPlayer = (props, ref) => {
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);
   const localCallEnd = async () => {
+   await props.sendCallIsEnded();
     props.endCall();
-    props.sendCallIsEnded();
   };
   const toggleAudio = () => {
     props.muteAudio();
@@ -102,9 +102,6 @@ const VideoPlayer = (props, ref) => {
       </div>
       
         </div>
-      
-
-      
     </Card>
   );
 };
