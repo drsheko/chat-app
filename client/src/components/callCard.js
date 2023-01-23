@@ -61,7 +61,7 @@ function CallCard(c) {
           <div className="align-content-end text-muted fs-6">
             {moment(call.timestamps).format("MMM Do YY") ===
             moment(new Date()).format("MMM Do YY")
-              ? moment(call.timestamps).format(" h:mm a")
+              ? moment(call.timestamps).format("h:mm a")
               : moment(call.timestamps).format(" h:mm a, MMM D, YY")}
           </div>
         </div>

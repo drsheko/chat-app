@@ -3,8 +3,8 @@ import {useState, useEffect} from 'react'
 import axios from 'axios';
 import { UserContext } from '../App';
 import CallCard from './callCard';
-import { Divider } from '@mui/material';
-
+import Divider from '@mui/material/Divider';
+import Card from '@mui/material/Card'
 function Calls(props) {
     let {user, setUser} =useContext(UserContext);
     const [calls, setCalls] =useState([]);
@@ -27,14 +27,14 @@ useEffect(()=>{
    
 },[])
     return (
-        <div>
+        <Card>
             {calls.length>0 && calls.map(c => 
             <>
                 <CallCard call={c} />
                 <Divider variant="middle" style={{ background: 'gray' }}  />
                 </>
             ) }
-        </div>
+        </Card>
     );
 }
 

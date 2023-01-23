@@ -7,7 +7,7 @@ const callSchema = new Schema({
   type: { type: String, default: "video" },
   status: { type: String },
   duration:{type:String, default:''},
-  timestamps: { type: Date, default: new Date() },
+  timestamps: { type: Date, default: new Date(Date.now()) },
 });
 
 

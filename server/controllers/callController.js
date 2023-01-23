@@ -72,7 +72,7 @@ exports.getCalls_By_USER_Id = async (req, res) => {
     .populate("calls")
     .populate({
       path: "calls",
-      populate: [{ path: "recipient" }, { path: "caller" }],
+      populate: [{ path: "recipient" }, { path: "caller" }]
     })
     .exec((error, user) => {
       if (error) {
