@@ -553,20 +553,21 @@ function ChatBox(props) {
 }
           <DialogContent dividers="true" >
             <DialogContentText >
-              <Card
+              <Box
                 variant="outlined"
                 id="scroll-dialog-description"
                 ref={descriptionElementRef}
                 tabIndex={-1}
-                style={{ padding: 20, minHeight: '25rem'  }}
+                style={{ padding: 10, minHeight: '25rem'  }}
+                
               >
                 {
                   recipients &&
                 messages.length > 0
                   ? messages.map((m) => (
-                      <div>
+                      <Box>
                         <ChatMsg message={m} userId={user._id} sender={recipients}/>
-                      </div>
+                      </Box>
                     ))
                   : ""
                 }
@@ -618,7 +619,7 @@ function ChatBox(props) {
                   ""
                 )}
                 <div ref={bottom} ></div>
-              </Card>
+              </Box>
             </DialogContentText>
           </DialogContent>
           <DialogActions>

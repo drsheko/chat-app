@@ -9,6 +9,9 @@ import  Typography  from "@mui/material/Typography";
 import moment from 'moment'
 import PhoneMissedRoundedIcon from '@mui/icons-material/PhoneMissedRounded';
 import PhoneSharpIcon from '@mui/icons-material/PhoneSharp';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -38,9 +41,11 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
   },
 }));
-function ChatMsg({message, userId}) {
+function ChatMsg({message, userId, sender}) {
     const myColor =  "#ab47bc" ;
     const otherColor = '#eeeeee';
+
+   
  
   return (
     <div style={{display:'flex' ,flexDirection:'column'}}>
@@ -53,7 +58,7 @@ function ChatMsg({message, userId}) {
                     p: 1,
                     m: 1,
                     bgcolor: (theme) =>
-                        theme.palette.mode === "dark" ? "#101010" : myColor,
+                        theme.palette.mode === "dark" ? myColor : myColor,
                     color: (theme) =>
                         theme.palette.mode === "dark" ? "grey.300" : "white",
                     border: "1px solid",
@@ -74,7 +79,7 @@ function ChatMsg({message, userId}) {
                        message.message==='missed'?
                        
                         <Grid container spacing={1} style={{width:'180px'}}>
-                            <Grid item xs={3}>
+                            <Grid item xs={3} className='d-flex flex-column justify-content-center'>
                               <div style={{borderRadius:'50%', height:'34px', width:'34px', backgroundColor:'red',textAlign:'center' ,paddingTop:'3px'}} >
                               <PhoneMissedRoundedIcon style={{color:'white'}}/>
                               </div>
@@ -98,7 +103,7 @@ function ChatMsg({message, userId}) {
                        :
                         
                           <Grid container spacing={1} style={{width:'180px'}}>
-                            <Grid item xs={3}>
+                            <Grid item xs={3} className='d-flex flex-column justify-content-center'>
                               <div 
                                 style={{borderRadius:'50%', height:'34px',
                                 width:'34px', backgroundColor:'green',textAlign:'center' ,
@@ -130,19 +135,20 @@ function ChatMsg({message, userId}) {
                  </Box>
         :(  <div style={{alignSelf: "start", display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
              
+                <div className="mt-2">
+                <Avatar sx={{alignSelf:'start'}} alt="Remy Sharp" src={sender[0].avatarURL} />
+                </div>
                 
-                <Avatar sx={{alignSelf:'start'}} alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
                 <div>
                 <Box
                     component="div"
                     sx={{
-                    
                     p: 1,
                     m: 1,
                     bgcolor: (theme) =>
-                        theme.palette.mode === "dark" ? "#101010" : otherColor,
+                        theme.palette.mode === "dark" ? 'grey.700' : otherColor,
                     color: (theme) =>
-                        theme.palette.mode === "dark" ? "grey.300" : "grey.800",
+                        theme.palette.mode === "dark" ? "grey.50" : "grey.800",
                     border: "1px solid",
                     borderColor: (theme) =>
                         theme.palette.mode === "dark" ? "grey.800" : "grey.300",
@@ -159,7 +165,7 @@ function ChatMsg({message, userId}) {
                        message.message==='missed'?
                        
                        <Grid container spacing={1} style={{width:'180px'}}>
-                       <Grid item xs={3}>
+                       <Grid item xs={3} className='d-flex flex-column justify-content-center'>
                          <div style={{borderRadius:'50%', height:'34px', width:'34px', backgroundColor:'red',textAlign:'center' ,paddingTop:'3px'}} >
                          <PhoneMissedRoundedIcon style={{color:'white'}}/>
                          </div>
@@ -180,7 +186,7 @@ function ChatMsg({message, userId}) {
                        :
                         
                             <Grid container spacing={1} style={{width:'180px'}}>
-                            <Grid item xs={3}>
+                            <Grid item xs={3} className='d-flex flex-column justify-content-center'>
                               <div 
                                 style={{borderRadius:'50%', height:'34px',
                                 width:'34px', backgroundColor:'green',textAlign:'center' ,
