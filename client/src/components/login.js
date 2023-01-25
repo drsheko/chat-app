@@ -1,13 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState , useContext} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-const Login = ({ getUser }) => {
+import { UserContext } from "../App";
+import  Card from "@mui/material/Card";
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box'
+import { Paper, Typography } from "@mui/material";
+import TextField from '@mui/material/TextField';
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputLabel from "@mui/material/InputLabel";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import FormControl from "@mui/material/FormControl";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Button from '@mui/material/Button';
+const Login = (props) => {
   let navigate = useNavigate();
-  const [errors, setErrors] = useState();
+  let {setUser} =useContext(UserContext)
+  const [error, setError] = useState();
   const [form, setForm] = useState({
     username: "",
     password: "",
   });
+  const [show, setShow] =useState(false);
 
   const handleFormSubmit = async (e) => {
     try {
@@ -15,20 +32,18 @@ const Login = ({ getUser }) => {
       var res = await axios.post("http://localhost:3001/api/login",{
         username: form.username,
         password: form.password
-      })      
-      var user = res.data.user
+      })     
+      let success = res.data.success;
+      if(success){
+        var user = res.data.user;
+         // Save logged user to local storage
+         localStorage.setItem("CHAT_APP_user", JSON.stringify(user));
+         setUser(user);
+         navigate("/", { replace: true });
+      } 
       
-      if ("errors" in res.data) {
-        setErrors(res.data.errors.error);
-      } else {
-        getUser(user); //send user to app
-        // Save logged user to local storage
-        localStorage.setItem("CHAT_APP_user", JSON.stringify(user));
-        navigate("/", { replace: true });
-      }
-    } catch (err) {
-      //setError(err)
-      console.log(err);
+    } catch (error) {
+      setError(error.response.data.error.error)
     }
   };
 
@@ -36,76 +51,77 @@ const Login = ({ getUser }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const togglePassword = () => {
-    var input = document.getElementById("password");
-    if (input.type === "password") {
-      input.type = "text";
-    } else {
-      input.type = "password";
-    }
-  };
-
-  useEffect(() => {}, [errors]);
+ 
 
   return (
-    <div className="card  m-5 ">
-      <div className="card-header">
-        <h1 className=" text-center">Login</h1>
-        <h5 className="text-center text-muted h6">
-          New user?{" "}
-          <span>
+    <Paper sx={{width:'100%', height:'100vh'}} className='d-flex justify-content-center'>
+    <Card className="p-2 p-sm-3 p-md-4 d-flex flex-column m-auto" elevation={15}>
+      <Box className="card-header" >
+        <Typography className=" text-center" variant='h2' color='primary'>Login</Typography>
+        <Typography className="text-center text-muted h6">
+          Don't have an account ?{" "}
+          <span className="text-nowrap">
             <Link to="/signup">Sign-up</Link>
           </span>
-        </h5>
-      </div>
-
-      <form onSubmit={handleFormSubmit} className="card m-5 py-2 px-5">
-        <label className="form-label">Username</label>
-        <input
-          type="text"
+        </Typography>
+      </Box>
+      {error&& (
+          <Alert severity="error"  onClose={()=>setError('')} className='text-capitalize my-2'>
+           
+            {error} !!
+          </Alert>
+        ) }
+      <form onSubmit={handleFormSubmit} className=" p-2 p-sm-3 p-md-4  d-flex flex-column">
+        
+        <TextField
           name="username"
-          className="p-2 form-control "
+          id="outlined-required"
+          label='Username'
           value={form.username}
           onChange={handleChange}
           required
         />
-        <label className="form-label mt-2"> Password</label>
-        <input
-          type={"password"}
-          name="password"
-          className=" p-2 form-control"
-          value={form.password}
-          onChange={handleChange}
-          id="password"
-          autoComplete="on"
-          required
-        />
-        <div className="form-check my-2">
-          <input
-            type="checkbox"
-            className="form-check-input"
-            id="showPassword"
-            onClick={togglePassword}
+       
+        <FormControl sx={{ mt: 2 }} variant="outlined">
+          <InputLabel htmlFor="outlined-adornment-password">
+            Password *
+          </InputLabel>
+          <OutlinedInput
+            id="outlined-adornment-password"
+            value={form.password}
+            name='password'
+            onChange={handleChange}
+            type={show ? "text" : "password"}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={() => setShow(state => !state)}
+                  edge="end"
+                >
+                  {show ? <VisibilityOff color='primary'/> : <Visibility color="primary" />}
+                </IconButton>
+              </InputAdornment>
+            }
+            label="Password"
+           required
           />
-          <label className="form-check-label" htmlFor="showPassword">
-            Show password
-          </label>
-        </div>
+        </FormControl>
+    
 
-        {typeof errors != "undefined" ? (
-          <h3 className="text-danger h6 my-2">-{errors}</h3>
-        ) : (
-          <></>
-        )}
-        <button
+       
+        <Button
           type="submit"
-          className="btn btn-primary col-6 col-md-3 text-center my-4"
+          className="  text-center my-4"
           value="submit"
+          variant="contained"
         >
-          Log in
-        </button>
+          <Typography className="fw-bolder text-capitalize">Login</Typography>
+        </Button>
+        
       </form>
-    </div>
+    </Card>
+    </Paper>
   );
 };
 
