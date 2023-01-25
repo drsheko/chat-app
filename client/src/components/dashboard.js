@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { UserContext } from "../App";
+import { ThemeContext, UserContext } from "../App";
 import PeerProvider, { usePeer } from "../context/peerProvider";
 import SocketProvider, { useSocket } from "../context/socketProvider";
 import BottomNavbar from "./bottomNavbar";
@@ -15,11 +15,15 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
-import Menu from "@mui/material/Menu";
+import AppBar from "@mui/material/AppBar";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Image from "react-bootstrap/Image";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import ModeNightIcon from "@mui/icons-material/ModeNight";
 import Container from "react-bootstrap/Container";
 import ChatBox from "./chatBox";
 import CallModal from "./callModal";
@@ -31,6 +35,7 @@ import Profile from "./profile";
 import Calls from "./calls";
 function Dashboard() {
   var { user } = useContext(UserContext);
+  var { darkMode, setDarkMode } = useContext(ThemeContext);
   var id = user._id;
   var socket = useSocket();
   var myPeer = usePeer();
@@ -148,30 +153,28 @@ function Dashboard() {
     setCallSummaryMessage(newMessage);
     socket.emit("cancel call", { room: chatRoom._id, message: newMessage });
     var url = "http://localhost:3001/api/calls/call/cancelledCall";
-    try{
-      let res =await axios.post(url,{
-        caller:currentCall.provider._id,
-        recipient:currentCall.peer,
-        status:'cancelled'
-
-      })
-    }catch(error){
-      console.log(error)
+    try {
+      let res = await axios.post(url, {
+        caller: currentCall.provider._id,
+        recipient: currentCall.peer,
+        status: "cancelled",
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
   const sendCallIsDeclined = async () => {
     var chatRoom = await getChatRoomByCallerId(currentCall.peer);
     var newMessage = await createMessage("missed", chatRoom);
     var url = "http://localhost:3001/api/calls/call/saveCall";
-    try{
-      let res =await axios.post(url,{
-        caller:currentCall.provider._id,
-        recipient:currentCall.peer,
-        status:'missed'
-
-      })
-    }catch(error){
-      console.log(error)
+    try {
+      let res = await axios.post(url, {
+        caller: currentCall.provider._id,
+        recipient: currentCall.peer,
+        status: "missed",
+      });
+    } catch (error) {
+      console.log(error);
     }
     setCallSummaryMessage(newMessage);
     socket.emit("decline call", { room: chatRoom._id, message: newMessage });
@@ -189,16 +192,16 @@ function Dashboard() {
       message: newMessage,
     });
     var url = "http://localhost:3001/api/calls/call/saveCall";
-    try{
-      let res =await axios.post(url,{
-        caller:currentCall.provider._id,
-        recipient:currentCall.peer,
-        status:'answered',
-        duration: callDuration
-      })
-      console.log(res)
-    }catch(error){
-      console.log(error)
+    try {
+      let res = await axios.post(url, {
+        caller: currentCall.provider._id,
+        recipient: currentCall.peer,
+        status: "answered",
+        duration: callDuration,
+      });
+      console.log(res);
+    } catch (error) {
+      console.log(error);
     }
   };
   const cancelCall = async () => {
@@ -405,13 +408,19 @@ function Dashboard() {
         </div>
       ) : (
         <div>
-          <Box sx={{ flexGrow: 1 }}>
-            <Paper
-              elevation="20"
+          <Box sx={{ flexGrow: 1 }} className=" sticky-top">
+            <AppBar color='' 
+              elevation={darkMode?0:15}
               sx={{ position: "static", top: 0, left: 0, right: 0 }}
+              
             >
               <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <Typography
+                  variant="h6"
+                  component="div"
+                  sx={{ flexGrow: 1 }}
+                  className="text-capitalize"
+                >
                   {user.username}
                 </Typography>
                 <Typography
@@ -423,6 +432,15 @@ function Dashboard() {
                   {key}
                 </Typography>
                 <div>
+                  <IconButton
+                    sx={{ ml: 1 }}
+                    onClick={() => {
+                      setDarkMode((state) => !state);
+                    }}
+                    color="inherit"
+                  >
+                    {darkMode ? <LightModeIcon color='warning'/> : <ModeNightIcon color='primary'/>}
+                  </IconButton>
                   <IconButton
                     size="large"
                     onClick={() => {
@@ -437,10 +455,11 @@ function Dashboard() {
                   </IconButton>
                 </div>
               </Toolbar>
-            </Paper>
+            </AppBar>
           </Box>
 
-          <Container className="mt-5">
+          <Container className="mt-5 px-1"  >
+            
             {key === "chats" ? (
               <ContactSection
                 setOpenChat={setOpenChat}
