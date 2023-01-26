@@ -79,7 +79,7 @@ const Signup = () => {
             </span>
           </Typography>
         </Box>
-        <form
+        <form 
           className=" p-2 p-sm-3 p-md-4  d-flex flex-column"
           onSubmit={handleFormSubmit}
         >
