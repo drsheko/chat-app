@@ -25,118 +25,115 @@ exports.signup_post = [
     .withMessage("Password should be at least 6 character"),
   body("confirmPassword")
     .trim()
-    .isLength({ min: 6 })
     .escape()
-    .withMessage("Password confirmation should match your password ")
     .custom(async (value, { req }) => {
       if (value !== req.body.password) {
-        throw new Error("Password confirmation does not match password");
+        throw new Error("Password confirmation does not match");
       }
       return true;
     }),
 
   async (req, res, next) => {
-    //upload
-    var uploadedFileURL;
-    const file = req.file;
-    const fileName = file.originalname + new Date();
-    const imageRef = ref(storage, fileName);
-    const metatype = { contentType: file.mimetype, name: file.originalname };
-    await uploadBytes(imageRef, file.buffer, metatype)
-      .then((snapshot) => {
-        uploadedFileURL = `https://firebasestorage.googleapis.com/v0/b/${snapshot.ref._location.bucket}/o/${snapshot.ref._location.path_}?alt=media`;
-      })
-      .catch((error) => console.log(error.message));
-
     var form = {
       username: req.body.username,
       password: req.body.password,
       confirmPassword: req.body.confirmPassword,
     };
-    var errorsArr = [];
     const isUsernameTaken = await User.findOne({ username: req.body.username });
     if (isUsernameTaken != null) {
-      // errorsArr.push('Username is aleardy token !!')
       return res
         .status(401)
-        .json({ errors: ["Username is aleardy taken !!"], form });
+        .json({ success:false, errors:["Username is aleardy taken !!"] ,form});
     }
+    var errorsArr = [];
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       var errorsMsg = errors.errors.map((err) => err.msg);
 
       errorsArr.push(errorsMsg);
-      return res.status(401).json({ errors: errorsMsg, form });
+      return res.status(401).json({ success:false,errors: errorsMsg, form });
     }
-    try {
+
+
+    //upload
+    var uploadedFileURL;
+    const file = req.file;
+    if (file) {
+      const fileName = file.originalname + new Date();
+      const imageRef = ref(storage, fileName);
+      const metatype = { contentType: file.mimetype, name: file.originalname };
+      await uploadBytes(imageRef, file.buffer, metatype)
+        .then((snapshot) => {
+          uploadedFileURL = `https://firebasestorage.googleapis.com/v0/b/${snapshot.ref._location.bucket}/o/${snapshot.ref._location.path_}?alt=media`;
+        })
+        .catch((error) => {
+          return res.status(401).json({ success: false, errors:[error] });
+        });
+    }
+
+    
       var uploaded_Url;
-      bcrypt.hash(req.body.password, 10, (err, hash) => {
-        if (err) {
-          console.log(err);
-        } else {
-          if (req.file) {
-            uploaded_Url = uploadedFileURL;
-          }
-          var user = new User({
-            username: req.body.username,
-            password: hash,
-            avatarURL: uploaded_Url,
-          }).save((err) => {
-            if (err) {
-              next(err);
-            }
-            res.json({ success: " Account has created successfully" });
-          });
+      bcrypt.hash(req.body.password, 10, (error, hash) => {
+        if (error) {
+          return res.status(401).json({ success: false, errors:[error] });
         }
+        if (req.file) {
+          uploaded_Url = uploadedFileURL;
+        }
+        var user = new User({
+          username: req.body.username,
+          password: hash,
+          avatarURL: uploaded_Url,
+        }).save((error) => {
+          if (error) {
+            return res.status(401).json({ success: false, errors:[error] });
+          }
+          return res
+            .status(200)
+            .json({ success: true, msg: "Account has created successfully" });
+        });
       });
-    } catch (err) {
-      return next(err);
-    }
   },
 ];
 
 exports.search_Contacts = async (req, res) => {
   var search = req.body.search;
-  var userId =req.body.userId;
-  User.find(
-    {
-      username:{$regex:search,$options:'$i'},
-      _id:{$ne:userId}
-    })
-    .exec((error, result) => {
-      if(error){
-        return res.status(401).json({success:false, error})
-      }
-      return res.status(200).json({success:true, result})
-    })
-    
+  var userId = req.body.userId;
+  User.find({
+    username: { $regex: search, $options: "$i" },
+    _id: { $ne: userId },
+  }).exec((error, result) => {
+    if (error) {
+      return res.status(401).json({ success: false, error });
+    }
+    return res.status(200).json({ success: true, result });
+  });
 };
 
 exports.Add_friend = (req, res) => {
   var userId = req.params.userid;
   var contactId = req.params.contactid;
   User.findByIdAndUpdate(
-    userId,{
+    userId,
+    {
       $addToSet: {
         friends: contactId,
-      }
-    },{new:true}
-  )
-  .exec(
-    (err,user) => {
-      if (err) {
-        return res.status(401).json({ error: err });
-      } else {
-        User.findById(contactId, (err, addedFriend) => {
-          if (err) {
-            return res.status(401).json({ success: false, err });
-          } else {
-            return res.status(200).json({ success: true, addedFriend ,user});
-          }
-        });
-      }
+      },
+    },
+    { new: true }
+  ).exec((err, user) => {
+    if (err) {
+      return res.status(401).json({ error: err });
+    } else {
+      User.findById(contactId, (err, addedFriend) => {
+        if (err) {
+          return res.status(401).json({ success: false, err });
+        } else {
+          return res.status(200).json({ success: true, addedFriend, user });
+        }
+      });
     }
-  );
+  });
 };
 
 exports.get_USER_Friends = (req, res) => {
@@ -168,11 +165,15 @@ exports.get_USER_BY_userID = async (req, res) => {
 
 exports.switch_To_Online_ByUserId = async (req, res) => {
   var userId = req.body.userId;
-  User.findByIdAndUpdate(userId, {
-    $set: {
-      isOnline: true,
+  User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        isOnline: true,
+      },
     },
-  },{new:true}).exec((err, user) => {
+    { new: true }
+  ).exec((err, user) => {
     if (err) {
       return res.status(401).json({ success: false, err });
     }
@@ -181,11 +182,15 @@ exports.switch_To_Online_ByUserId = async (req, res) => {
 };
 exports.switch_To_offline_ByUserId = async (req, res) => {
   var userId = req.body.userId;
-  User.findByIdAndUpdate(userId, {
-    $set: {
-      isOnline: false,
+  User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        isOnline: false,
+      },
     },
-  },{new:true}).exec((err, user) => {
+    { new: true }
+  ).exec((err, user) => {
     if (err) {
       return res.status(401).json({ success: false, err });
     }
@@ -195,11 +200,15 @@ exports.switch_To_offline_ByUserId = async (req, res) => {
 exports.change_Profile_Info = (req, res) => {
   let userId = req.body.userId;
   let username = req.body.username;
-  User.findByIdAndUpdate(userId, {
-    $set: {
-      username: username,
-    }
-  },{new:true}).exec((err, user) => {
+  User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        username: username,
+      },
+    },
+    { new: true }
+  ).exec((err, user) => {
     if (err) {
       return res.status(401).json({ success: false, err });
     }
@@ -230,15 +239,19 @@ exports.changePassword = (req, res) => {
             if (error) {
               return res.status(401).json({ success: false, error });
             } else {
-              User.findByIdAndUpdate(userId, {
-                $set: {
-                  password: hash,
+              User.findByIdAndUpdate(
+                userId,
+                {
+                  $set: {
+                    password: hash,
+                  },
                 },
-              },{new:true}).exec((error, user) => {
+                { new: true }
+              ).exec((error, user) => {
                 if (error) {
                   return res.status(401).json({ success: false, error });
                 } else {
-                  return res.status(200).json({ success: true , user});
+                  return res.status(200).json({ success: true, user });
                 }
               });
             }
@@ -261,79 +274,105 @@ exports.upload_Profile_Picture = [
     await uploadBytes(imageRef, file.buffer, metatype)
       .then((snapshot) => {
         uploadedFileURL = `https://firebasestorage.googleapis.com/v0/b/${snapshot.ref._location.bucket}/o/${snapshot.ref._location.path_}?alt=media`;
-        User.findByIdAndUpdate(userId, {
-          $set: {
-            avatarURL: uploadedFileURL
+        User.findByIdAndUpdate(
+          userId,
+          {
+            $set: {
+              avatarURL: uploadedFileURL,
+            },
+            $push: {
+              "pictures.uploads": uploadedFileURL,
+            },
           },
-          $push:{
-            "pictures.uploads":uploadedFileURL
-          }
-        },{new:true}).exec((error, user) => {
+          { new: true }
+        ).exec((error, user) => {
           if (error) {
             return res.status(401).json({ success: false, error });
           }
-          return res
-            .status(200)
-            .json({ success: true, user });
+          return res.status(200).json({ success: true, user });
         });
       })
-      .catch(error => {
-        return res.status(401).json({success:false, error:error.message})
+      .catch((error) => {
+        return res.status(401).json({ success: false, error: error.message });
       });
   },
 ];
 
-exports.Change_Profile_Picture = async(req, res) => {
+exports.Change_Profile_Picture = async (req, res) => {
   let userId = req.body.userId;
-  let photo = req.body.photoURL ;
-  User.findByIdAndUpdate(userId,{
-    $set:{
-      avatarURL:photo
+  let photo = req.body.photoURL;
+  User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        avatarURL: photo,
+      },
+      $addToSet: {
+        "pictures.uploads": photo,
+      },
     },
-    $addToSet:{
-    'pictures.uploads':photo
+    { new: true }
+  ).exec((error, user) => {
+    if (error) {
+      return res.status(401).json({ success: false, error });
     }
-  },{new:true})
-  .exec((error, user) => {
-    if(error){
-      return res.status(401).json({success:false, error})
-    }
-    return res.status(200).json({success:true,user})
-  })
-}
+    return res.status(200).json({ success: true, user });
+  });
+};
 
-exports.Remove_photo_from_Gallery = async(req, res) => {
+exports.Remove_photo_from_Gallery = async (req, res) => {
   var userId = req.body.userId;
- const removedPhoto = req.body.photoURL;
+  const removedPhoto = req.body.photoURL;
   const photoType = req.body.photoType;
 
-  User.findByIdAndUpdate(userId,{
-    $pull:  {
-       [`pictures.${photoType}`]:removedPhoto
+  User.findByIdAndUpdate(
+    userId,
+    {
+      $pull: {
+        [`pictures.${photoType}`]: removedPhoto,
+      },
+    },
+    { new: true }
+  ).exec((error, user) => {
+    if (error) {
+      return res.status(401).json({ success: false, error });
     }
-  },{new:true})
-  .exec((error, user) =>{
-    if(error){
-      return res.status(401).json({success:false, error})
-    }
-    return res.status(200).json({success:true, user})
-  })
-}
+    return res.status(200).json({ success: true, user });
+  });
+};
 
-exports.unFollow_Friend =async (req, res) => {
-  console.log(req.body)
+exports.unFollow_Friend = async (req, res) => {
+  console.log(req.body);
   var userId = req.body.userId;
   var friendId = req.body.friendId;
 
-  User.findByIdAndUpdate(userId,{
-    $pull:{
-      'friends':friendId,
+  User.findByIdAndUpdate(
+    userId,
+    {
+      $pull: {
+        friends: friendId,
+      },
+    },
+    { new: true }
+  ).exec((error, user) => {
+    if (error) {
+      return ress.status(401).json({ success: false, error });
     }
-  },{new:true})
-  .exec((error, user) => {
-    if(error){
-      return ress.status(401).json({success:false, error})
+    return res.status(200).json({ success: true, user });
+  });
+};
+exports.add_field = async (req, res) => {
+  User.updateMany(
+    {},
+    {
+      $set: {
+        calls: [],
+      },
     }
-    return res.status(200).json({success:true, user})
-  })
-}
+  ).exec((error, users) => {
+    if (error) {
+      return res.status(401).json({ success: false, error });
+    }
+    return res.status(200).json({ success: true, users });
+  });
+};
