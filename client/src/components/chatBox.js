@@ -7,7 +7,7 @@ import Popover from "@mui/material/Popover";
 import Form from "react-bootstrap/Form";
 import CloseButton from "react-bootstrap/CloseButton";
 import Modal from "react-bootstrap/Modal";
-import { UserContext } from "../App";
+import { ThemeContext, UserContext } from "../App";
 import { useSocket } from "../context/socketProvider";
 import { Peer } from "peerjs";
 import { usePeer } from "../context/peerProvider";
@@ -86,6 +86,7 @@ const SmallAvatar = styled(Avatar)(({ theme }) => ({
 
 function ChatBox(props) {
   var {user} = useContext(UserContext);
+  var {darkMode} = useContext(ThemeContext);
   var socket = useSocket();
   var myPeer = usePeer();
   var chat = props.selectedChat;
@@ -629,7 +630,7 @@ function ChatBox(props) {
             >
               <div class="image-upload">
                 <label for="file-input">
-                  <CollectionsIcon className="fileInput-icon" />
+                  <CollectionsIcon className="fileInput-icon" color='primary'/>
                 </label>
                
                 <input
@@ -648,6 +649,8 @@ function ChatBox(props) {
                 cleanOnEnter
                 onEnter={handleOnEnter}
                 placeholder="Type a message"
+                theme={darkMode?'dark':'light'}
+                style={{color:'black !important'}}
               />
               <Divider orientation="vertical" />
 
