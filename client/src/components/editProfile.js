@@ -1,6 +1,10 @@
 import React from "react";
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
+import ChangePasswordForm from "./changePasswordForm";
+import ChangeProfileInfo from "./changeProfileInfo";
+import { UserContext } from "../App";
+import Gallery from "./gallery";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import AppBar from "@mui/material/AppBar";
@@ -12,18 +16,20 @@ import CloseIcon from "@mui/icons-material/Close";
 import Card from "@mui/material/Card";
 import Badge from "@mui/material/Badge";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Slide from "@mui/material/Slide";
+import CollectionsIcon from "@mui/icons-material/Collections";
 import { styled } from "@mui/material/styles";
 import MuiAccordion from "@mui/material/Accordion";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import DoubleArrowRoundedIcon from "@mui/icons-material/DoubleArrowRounded";
-import ChangePasswordForm from "./changePasswordForm";
-import ChangeProfileInfo from "./changeProfileInfo";
+import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { UserContext } from "../App";
-import Gallery from "./gallery";
-import { Alert, Backdrop, Box, CircularProgress } from "@mui/material";
 import resizePhoto from "../tools/compressUpload";
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={5} square {...props} />
@@ -60,11 +66,17 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 }));
 function EditProfile(props) {
   let { user, setUser } = useContext(UserContext);
-
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const openMenu = Boolean(anchorEl);
+  const handleClickMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
   const [open, setOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [expanded, setExpanded] = React.useState("panel1");
-  const [anchorEl, setAnchorEl] = useState(null);
   const [upload, setUpload] = useState(null);
   const [isSelected, setIsSelected] = useState(false);
   const [image, setImage] = useState(null);
@@ -72,7 +84,6 @@ function EditProfile(props) {
   const [isPhotoSelected, setIsPhotoSelected] = useState(false);
   const [gallerySelectedPhoto, setGallerySelectedPhoto] = useState(null);
   const [success, setSuccess] = useState("");
-  const openMenu = Boolean(anchorEl);
 
   const handleUploadFile = async (e) => {
     var file = e.target.files[0];
@@ -152,12 +163,6 @@ function EditProfile(props) {
     }
   };
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
   const handleChange = (panel) => (event, newExpanded) => {
     setExpanded(newExpanded ? panel : false);
   };
@@ -246,49 +251,78 @@ function EditProfile(props) {
                 overlap="circular"
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 badgeContent={
-                  <div class="btn-group dropend">
+                  <Box class="btn-group dropend">
                     <i
                       class="bi bi-camera-fill"
                       type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
+                      id="demo-positioned-button"
+                      aria-controls={
+                        openMenu ? "demo-positioned-menu" : undefined
+                      }
+                      aria-haspopup="true"
+                      aria-expanded={openMenu ? "true" : undefined}
+                      onClick={handleClickMenu}
                     ></i>
-                    <ul class="dropdown-menu">
-                      <li>
-                        <div class="image-upload dropdown-item">
-                          <label for="file-input">
-                            <i class="bi bi-upload fileInput-icon"></i>
-                            Upload photo
-                          </label>
-
-                          <input
-                            id="file-input"
-                            type="file"
-                            onClick={(e) => {
-                              e.target.value = null;
-                            }}
-                            onChange={handleUploadFile}
-                          />
-                        </div>
-                      </li>
-                      <li>
-                        <button
-                          class="dropdown-item ps-4"
-                          type="button"
-                          onClick={() => {
-                            setIsGalleryOpen(true);
-                          }}
+                    <Menu
+                      id="demo-positioned-menu"
+                      aria-labelledby="demo-positioned-button"
+                      anchorEl={anchorEl}
+                      open={openMenu}
+                      onClose={handleCloseMenu}
+                      anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "left",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "left",
+                      }}
+                    >
+                      <MenuItem>
+                        <label
+                          htmlFor="file-input"
+                          className="d-flex flex-row"
+                          style={{ cursor: "pointer" }}
                         >
-                          <i class="bi bi-images"></i>
-                          Open Gallery
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
+                          <ListItemIcon>
+                            <FileUploadRoundedIcon
+                              color="primary"
+                              className="px-0"
+                            />
+                          </ListItemIcon>
+                          <ListItemText primary="Upload photo" />
+                        </label>
+                        <input
+                          id="file-input"
+                          type="file"
+                          style={{ display: "none" }}
+                          onChange={(e) => {
+                            handleCloseMenu();
+                            handleUploadFile(e);
+                          }}
+                          onClick={(e) => {
+                            e.target.value = null;
+                          }}
+                        />
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          handleCloseMenu();
+                          setIsGalleryOpen(true);
+                        }}
+                      >
+                        {" "}
+                        <ListItemIcon>
+                          <CollectionsIcon color="primary" className="px-0" />
+                        </ListItemIcon>
+                        <ListItemText primary="Open Gallery" />
+                      </MenuItem>
+                    </Menu>
+                  </Box>
                 }
               >
                 <Avatar
-                  alt="Travis Howard"
+                  alt={user.username}
                   src={image ? image : user.avatarURL}
                   sx={{ width: 100, height: 100 }}
                 />
