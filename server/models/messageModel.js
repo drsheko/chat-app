@@ -12,7 +12,7 @@ const readByRecipientSchema = new Schema({
       chatRoom: { type: Schema.Types.ObjectId, ref: "chatRoom"},
       message: mongoose.Schema.Types.Mixed,
       postedBy: { type: Schema.Types.ObjectId, ref: "user"},
-      timestamp:{type: Date, default: new Date()},
+      timestamp:{type: Date, default: Date.now},
       type:{type:String, default:'text'},
       readByRecipients: [readByRecipientSchema],
     }

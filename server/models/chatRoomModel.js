@@ -6,7 +6,7 @@ const chatRoomSchema = new Schema(
   {
     userIds:[{ type: Schema.Types.ObjectId, ref: "user", default: []}],
     messages:[{ type: Schema.Types.ObjectId, ref: "message", default: []}],
-    timestamps: {type : Date, default: new Date()}
+    timestamps: {type : Date, default: Date.now}
   }
 );
 
