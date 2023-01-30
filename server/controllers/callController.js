@@ -65,19 +65,17 @@ exports.cancelled_call = async (req, res) => {
   });
 };
 
-exports.getCalls_By_USER_Id = async (req, res) => {
+exports.getCalls_By_UserId =async(req, res) =>{
   let userId = req.body.userId;
-
-  User.findById(userId, 'calls')
-    .populate("calls")
-    .populate({
-      path: "calls",
-      populate: [{ path: "recipient" }, { path: "caller" }]
-    })
-    .exec((error, user) => {
-      if (error) {
-        return res.status(401).json({ success: false, error });
-      }
-      return res.status(200).json({ success: true, calls: user.calls });
-    });
-};
+  Call.find({'users':{$in:userId}})
+  .sort({'timestamps':-1})
+  .populate('caller')
+  .populate('recipient')
+  .exec((error, calls) =>{
+    if (error) {
+      return res.status(401).json({ success: false, error });
+    }
+    console.log(calls)
+    return res.status(200).json({success:true, calls})
+  })
+}
