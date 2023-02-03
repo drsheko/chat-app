@@ -101,7 +101,12 @@ function Dashboard() {
   // call
   const makeVideoCall = async (friendId) => {
     setIsCalling(true);
-    socket.roomId = selectedChat._id;
+    if(selectedChat){
+      socket.roomId = selectedChat._id;
+    }else{
+      socket.roomId = await getChatRoomByCallerId(friendId)
+    }
+    
     var getUserMedia =
       navigator.mediaDevices.getUserMedia ||
       navigator.webkitGetUserMedia ||
@@ -387,6 +392,7 @@ function Dashboard() {
           callRecipient={callRecipient}
           cancelCall={cancelCall}
           sendCallIsCancelled={sendCallIsCancelled}
+          sendCallIsDeclined={sendCallIsDeclined}
         />
       ) : isProfileOpen ? (
         <Profile id={profileId} setIsProfileOpen={setIsProfileOpen} />
@@ -467,7 +473,7 @@ function Dashboard() {
                 openProfile={openProfile}
               />
             ) : key === "calls" ? (
-              <Calls />
+                <Calls  makeVideoCall={makeVideoCall} openProfile={openProfile}  setCallRecipient={setCallRecipient} />
             ) : key === "contacts" ? (
               "people"
             ) : (

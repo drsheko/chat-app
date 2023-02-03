@@ -10,18 +10,21 @@ import CallEndIcon from "@mui/icons-material/CallEnd";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
-
-function CallCard(c) {
+import CallModal from "./callModal";
+function CallCard({call,makeVideoCall, openProfile,setCallRecipient}) {
   let { user } = useContext(UserContext);
-  const [call, setCall] = useState(c.call);
+ // const [call, setCall] = useState(c.call);
   const [time, setTime] = useState(call.timestamps);
-  useEffect(() => {
-    console.log(new Date(Date.now()));
-  }, [call]);
+  const [openModal, setOpenModal] =useState(false);
+
+ 
   return (
-    <div className="d-flex flex-row px-2 mb-1">
-      <div className="d-flex flex-column justify-content-center">
+    
+    <div className="d-flex flex-row px-2 mb-1"  >
+      
+      <div className="d-flex flex-column justify-content-center" >
         <Avatar
+       onClick={()=>openProfile(call.caller._id===user._id?call.recipient:call.caller)}
           src={
             call.caller._id === user._id
               ? call.recipient.avatarURL
@@ -29,7 +32,7 @@ function CallCard(c) {
           }
         />
       </div>
-      <div className="d-flex flex-column mx-2  w-100">
+      <div className="d-flex flex-column mx-2  w-100" onClick={()=>{setOpenModal(true)}}>
         <Typography className="text-capitalize fw-bold mt-3">
           {call.caller._id === user._id
             ? call.recipient.username
@@ -66,6 +69,7 @@ function CallCard(c) {
           </div>
         </div>
       </div>
+      {openModal && <CallModal friend={call.caller._id===user._id?call.recipient:call.caller} setOpenModal={setOpenModal} makeVideoCall={makeVideoCall} setCallRecipient={setCallRecipient} openModal={openModal}/>}
     </div>
   );
 }
