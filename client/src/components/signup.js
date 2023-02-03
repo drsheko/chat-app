@@ -17,6 +17,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
 import Badge from "@mui/material/Badge";
+import resizePhoto from "../tools/compressUpload";
 
 const Signup = () => {
   let navigate = useNavigate();
@@ -55,6 +56,7 @@ const Signup = () => {
 
   const uploadFile = async (e) => {
     var file = e.target.files[0];
+    file = await resizePhoto(file);
     setUpload(file);
     setIsSelected(true);
     if (e.target.files && e.target.files[0]) {
@@ -73,10 +75,10 @@ const Signup = () => {
             Sign up
           </Typography>
           <Typography className="text-center text-muted h6">
-            Do you have an account?
-            <span>
-              <Link to="/login">Login</Link>
-            </span>
+            Do you have an account?{' '}
+            <Typography component={Link} to="/login" style={{textDecoration:'none'}} color='primary'>
+              Login
+            </Typography>
           </Typography>
         </Box>
         <form 
