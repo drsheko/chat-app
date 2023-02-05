@@ -6,11 +6,14 @@ import { styled } from "@mui/material/styles";
 import DialogContent from "@mui/material/DialogContent";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import ImageListItem, {
+import  {
   imageListItemClasses,
 } from "@mui/material/ImageListItem";
+import StyledImageListItem from "../styled_components/styledImageListItem";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Tooltip from "@mui/material/Tooltip";
 import {
@@ -51,16 +54,7 @@ function Gallery(props) {
     setOpen(false);
     props.setIsGalleryOpen(false);
   };
-  const StyledImageListItem = styled(({ ...otherProps }) => (
-    <ImageListItem {...otherProps} />
-  ))`
-  &:hover {
-    .buttons{
-        display:block !important;    
-    }
-  }  
-}`;
-
+ 
   return (
     <BootstrapDialog
       fullScreen
@@ -69,12 +63,17 @@ function Gallery(props) {
       scroll="paper"
       open={open}
     >
-      <ThemeProvider theme={theme}>
+      
         <BootstrapDialogTitle
           id="customized-dialog-title"
-          onClose={handleClose}
-          className="text-center"
+          
+          className="d-flex flex-row justify-content-start"
         >
+          <IconButton className='align-self-start'
+            onClick={handleClose}
+          >
+            <ArrowBackIcon color='primary'/>
+          </IconButton>
           <ToggleButtonGroup
             variant="contained"
             color="primary"
@@ -82,6 +81,7 @@ function Gallery(props) {
             exclusive
             onChange={handleChange}
             aria-label="Photos"
+            className="mx-auto "
           >
             <ToggleButton value="uploads" variant="contained">
               Album
@@ -156,7 +156,7 @@ function Gallery(props) {
             )}
           </Box>
         </DialogContent>
-      </ThemeProvider>
+    
     </BootstrapDialog>
   );
 }
