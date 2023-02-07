@@ -66,7 +66,7 @@ passport.use(
 		  return done(err);
 		}
 		if (!user) {
-		  return done(null, false, { error: "user is not found " });
+		  return done(null, false, { error: "User is not found " });
 		}
   
 		bcrypt.compare(password, user.password, (err, res) => {
@@ -74,7 +74,7 @@ passport.use(
 			return done(console.log(err));
 		  }
 		  if (!res) {
-			return done(null, false, { error: "incorrect password" });
+			return done(null, false, { error: "Incorrect password" });
 		  } else {
 			return done(null, user);
 		  }
