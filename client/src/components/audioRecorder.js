@@ -47,7 +47,7 @@ const AudioRecorder = (props) => {
     alignItems="center" spacing={2}>
        
        
-      <KeyboardVoiceSharpIcon {...useLongPressEvent} className='mic'/>
+      <KeyboardVoiceSharpIcon {...useLongPressEvent} className='mic' color='primary'/>
       {recording && <AudioRecorderAnimation/>}
     </Stack>
   );
