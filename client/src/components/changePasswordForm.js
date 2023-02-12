@@ -15,7 +15,7 @@ import Alert from "@mui/material/Alert";
 import CloseIcon from "@mui/icons-material/Close";
 
 function ChangePasswordForm(props) {
-  let user = useContext(UserContext);
+  let {user, setUser} = useContext(UserContext);
   const [oldPassword, setOldPassword] = useState({
     show: false,
     message: "",
@@ -37,7 +37,8 @@ function ChangePasswordForm(props) {
   const changePassword = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    //reset error message
+    setOldPassword({...oldPassword, message:''});
     // validation
     let validationScore = 0;
     if (oldPassword.value.trim().length < 6) {
@@ -50,6 +51,8 @@ function ChangePasswordForm(props) {
         message: "password should be atleast 6 letters",
       });
       validationScore++;
+    } else {
+      setNewPassword({ ...newPassword, message: "" });
     }
     if (newPassword.value !== confirmPassword.value) {
       setConfirmPassword({
@@ -77,6 +80,10 @@ function ChangePasswordForm(props) {
           setOldPassword({ ...oldPassword, value: "", message: "" });
           setNewPassword({ ...newPassword, value: "", message: "" });
           setConfirmPassword({ ...confirmPassword, value: "", message: "" });
+          let updatedUser = res.data.user;
+          setUser(updatedUser);
+          localStorage.setItem("CHAT_APP_user", JSON.stringify(updatedUser));
+          
         } else {
           setSuccess(false);
           setOldPassword({ ...oldPassword, message: "incorrect password!!!" });
