@@ -37,10 +37,8 @@ function Search(props) {
   const handleClose = () => {
     setResultOpen(false);
   };
-  const addFriend = async (e) => {
-    e.preventDefault();
+  const addFriend = async (contactId) => {
     try {
-      var contactId = searchResult[0]._id;
       var url = `http://localhost:3001/api/${user._id}/${contactId}`;
       var res = await axios.post(url);
       let success = res.data.success
@@ -85,9 +83,9 @@ function Search(props) {
           placeholder="Search...."
           required
           fullWidth
-          color="info"
+          color="primary"
           size="small"
-          style={{ backgroundColor: "#f5f5f5" }}
+          sx={{backgroundColor:'grey.100'}}
           id="outlined-adornment-weight"
           startAdornment={<i className="bi bi-search me-3"></i>}
           endAdornment={
@@ -95,7 +93,7 @@ function Search(props) {
               type="submit"
               className="text-capitalize"
               variant="contained"
-              color="info"
+              color="primary"
               style={{
                 position: "absolute",
                 right: "0",
@@ -135,7 +133,9 @@ function Search(props) {
             {searchResult.length > 0
               ? searchResult.map((e) => (
                   <div className="d-flex flex-justify-between">
-                    <ListItem>
+                    <ListItem onClick={()=>props.openProfile(e._id)}
+                      style={{cursor:'pointer'}}
+                    >
                       <ListItemAvatar>
                         <Avatar alt={e.username} src={e.avatarURL} />
                       </ListItemAvatar>
@@ -146,7 +146,7 @@ function Search(props) {
                     ) : (
                       <Button
                         size="small"
-                        onClick={addFriend}
+                        onClick={()=>addFriend(e._id)}
                         className="text-capitalize"
                       >
                         Follow
