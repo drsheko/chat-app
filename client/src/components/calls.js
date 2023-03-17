@@ -27,11 +27,12 @@ useEffect(()=>{
    
 },[])
     return (
-        <Card>
+        <Card className='mb-5'>
             {calls.length>0 && calls.map(c => 
             <>
-                <CallCard call={c} />
+                <CallCard call={c}  openProfile={props.openProfile} makeVideoCall={props.makeVideoCall}  setCallRecipient={props.setCallRecipient}/>
                 <Divider variant="middle" style={{ background: 'gray' }}  />
+
                 </>
             ) }
         </Card>
