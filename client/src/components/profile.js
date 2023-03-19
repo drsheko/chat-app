@@ -2,12 +2,8 @@ import React from "react";
 import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { UserContext } from "../App";
+import EditProfile from "./editProfile";
 import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
-import Avatar from "@mui/material/Avatar";
-import Stack from "@mui/material/Stack";
-import Chip from "@mui/material/Chip";
-import { useParams } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Tooltip from "@mui/material/Tooltip";
@@ -15,11 +11,16 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { imageListItemClasses } from "@mui/material/ImageListItem";
 import StyledImageListItem from "../styled_components/styledImageListItem";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import EditProfile from "./editProfile";
-import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
+import Paper from "@mui/material/Paper";
+import Box from "@mui/material/Box";
+import Dialog from "@mui/material/Dialog";
+import Container from "@mui/material/Container";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import StyledAlert from "../styled_components/styledAlert";
+
 function Profile(props) {
   let id = props.id;
   let { user, setUser } = useContext(UserContext);
@@ -33,6 +34,7 @@ function Profile(props) {
   const [alignment, setAlignment] = useState("uploads");
   const [userPhotos, setUserPhotos] = useState([]);
   const [photos, setPhotos] = useState([]);
+
   const handleChange = async (event, newAlignment) => {
     setAlignment(newAlignment);
     let key = event.target.value;
@@ -101,24 +103,38 @@ function Profile(props) {
       console.log(error);
     }
   };
-  const unfollow =async() =>{
-    alert('work')
+  const addFriend = async () => {
+    try {
+      var contactId = id;
+      var url = `http://localhost:3001/api/${user._id}/${contactId}`;
+      var res = await axios.post(url);
+      let success = res.data.success;
+      if (success) {
+        var updatedUser = res.data.user;
+        setUser(updatedUser);
+        localStorage.setItem("CHAT_APP_user", JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const unfollow = async () => {
     let url = "http://localhost:3001/api/user/removeFriend";
-    try{
+    try {
       let res = await axios.post(url, {
-        userId:user._id,
-        friendId:id
-      })
+        userId: user._id,
+        friendId: id,
+      });
       let success = await res.data.success;
-      if(success){
+      if (success) {
         let updatedUser = res.data.user;
         setUser(updatedUser);
         localStorage.setItem("CHAT_APP_user", JSON.stringify(updatedUser));
       }
-    }catch(error){
-      console.log(error)
+    } catch (error) {
+      console.log(error);
     }
-  }
+  };
   //------------------------------------------
   useEffect(() => {
     if (user._id === id) {
@@ -147,116 +163,158 @@ function Profile(props) {
       setIsLoading(false);
     }
   }, [profileUser]);
-  /*
-  useEffect(() => {
-    if (selectedPhoto) {
-      handleConfirmPhotoChange();
-      setSelectedPhoto(null);
-    }
-  }, [selectedPhoto]);
-*/
-  /*
-  useEffect(() => {
-    if (removedPhoto) {
-      handleConfirmRemovePhoto();
-      setRemovedPhoto(null);
-    }
-  }, [removedPhoto, type]);*/
+
   useEffect(() => {
     if (isMyProfile) {
       setUserPhotos(user.pictures);
     }
   }, [user]);
   return (
-    <div className="modal-fullscreen">
-      {isLoading || profileUser === null ? (
-        <div> NOW LOADING ............ 87%</div>
-      ) : isEditing ? (
-        <EditProfile setIsEditing={setIsEditing} />
-      ) : (
-        <div className="row  px-4 ">
-          <div className="col-xl-10 col-md-11 col-sm-12 mx-auto">
-            <div className="bg-white shadow rounded overflow-hidden">
-              <div className="px-4 pt-0 pb-4 bg-dark">
-                <IconButton
-                  className="text-white mt-3"
-                  onClick={() => {
-                    props.setIsProfileOpen(false);
+    <Dialog fullScreen open={true}>
+      <Paper
+        sx={{
+          minHeight: "100%",
+          bgcolor: (theme) =>
+            theme.palette.mode === "dark"
+              ? theme.palette.background.default
+              : theme.palette.background.paper,
+        }}
+      >
+        {isLoading || profileUser === null ? (
+          <Box> NOW LOADING ............ 87%</Box>
+        ) : isEditing ? (
+          <EditProfile setIsEditing={setIsEditing} />
+        ) : (
+          <Container
+            className="row  px-4 "
+            sx={{
+              minHeight: "100% !important",
+              bgcolor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? theme.palette.background.paper
+                  : theme.palette.background.paper,
+            }}
+          >
+            <Box
+              className="col-xl-10 col-md-11 col-sm-12 mx-auto"
+              style={{ minHeight: "100% !important" }}
+            >
+              <Box
+                className=" shadow rounded overflow-hidden"
+                sx={{
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? theme.palette.background.default
+                      : theme.palette.background.paper,
+                }}
+              >
+                <Box
+                  className="px-4 pt-0 pb-4 "
+                  sx={{
+                    bgcolor: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? theme.palette.background.paper
+                        : theme.palette.background.paper,
                   }}
                 >
-                  <ArrowBack color="#FFFFFF" />
-                </IconButton>
-                <div className="  profile-header mb-md-n5  row ">
-                  <div className="profile me-3 d-flex flex-column col-lg-3 col-md-4 col-sm-4 col-5">
-                    <img
-                      src={isMyProfile ? user.avatarURL : profileUser.avatarURL}
-                      alt="profile picture"
-                      className="rounded mb-2 img-thumbnail "
-                    />
-                    <div className="text-center">
-                      <h3 className="fw-bold text-capitalize">
-                        {isMyProfile ? user.username : profileUser.username}
-                      </h3>
-                    </div>
-                  </div>
-                  <div className="col-3 text-white d-flex justify-content-center align-items-center pb-2"></div>
-                </div>
-              </div>
+                  <IconButton
+                    className="text-white mt-3"
+                    onClick={() => {
+                      props.setIsProfileOpen(false);
+                    }}
+                  >
+                    <ArrowBack color="primary" />
+                  </IconButton>
+                  <Box className="  profile-header mb-md-n5  row ">
+                    <Box className="profile me-3 d-flex flex-column col-lg-3 col-md-4 col-sm-4 col-5">
+                      <img
+                        src={
+                          isMyProfile ? user.avatarURL : profileUser.avatarURL
+                        }
+                        alt="profile"
+                        className="rounded mb-2 img-thumbnail "
+                      />
+                      <Box className="text-center">
+                        <Typography
+                          className="fw-bold text-capitalize"
+                          variant="h4"
+                        >
+                          {isMyProfile ? user.username : profileUser.username}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box className="col-3 text-white d-flex justify-content-center align-items-center pb-2"></Box>
+                  </Box>
+                </Box>
 
-              <div className="bg-light p-4 d-flex justify-content-end text-center ">
-                <div>
-                  {isMyProfile ? (
-                    <Button
-                      className=" btn-sm container btn-md-md btn-block my-2 "
-                      color='primary' variant="contained"
-                      onClick={() => {
-                        setIsEditing(true);
-                      }}
-                    >
-                      Edit profile
-                    </Button>
-                  ) : user.friends.includes(id) ? (
-                    <Button className=" btn-sm container btn-md-md btn-block my-2 " 
-                    color='primary' variant="contained"
-                    onClick={unfollow}
-                    >
-                      Unfollow
-                    </Button>
-                  ) : (
-                    <Button className=" btn-sm container btn-md-md btn-block my-2  " 
-                    color='primary' variant="contained"
-                    
-                    >
-                      Follow
-                    </Button>
-                  )}
+                <Box
+                  className=" p-4 d-flex justify-content-end text-center"
+                  sx={{ bgcolor: "grey.100" }}
+                >
+                  <Box>
+                    {isMyProfile ? (
+                      <Button
+                        className=" btn-sm container btn-md-md btn-block my-2 "
+                        color="primary"
+                        variant="contained"
+                        onClick={() => {
+                          setIsEditing(true);
+                        }}
+                      >
+                        Edit profile
+                      </Button>
+                    ) : user.friends.includes(id) ? (
+                      <Button
+                        className=" btn-sm container btn-md-md btn-block my-2 "
+                        color="primary"
+                        variant="contained"
+                        onClick={unfollow}
+                      >
+                        Unfollow
+                      </Button>
+                    ) : (
+                      <Button
+                        className=" btn-sm container btn-md-md btn-block my-2  "
+                        color="primary"
+                        variant="contained"
+                        onClick={addFriend}
+                      >
+                        Follow
+                      </Button>
+                    )}
 
-                  <ul className="list-inline mb-0 ">
-                    <li className="list-inline-item me-5">
-                      <h5 className="font-weight-bold mb-0 d-block">
-                        {userPhotos.uploads.length}
-                      </h5>
-                      <small className="text-muted">
-                        {" "}
-                        <i className="fa fa-picture-o mr-1"></i>Photos
-                      </small>
-                    </li>
-                    <li className="list-inline-item">
-                      <h5 className="font-weight-bold mb-0 d-block">
-                        {profileUser.friends.length}
-                      </h5>
-                      <small className="text-muted">
-                        {" "}
-                        <i className="fa fa-user-circle-o mr-1"></i>Followers
-                      </small>
-                    </li>
-                    <li className="list-inline-item "></li>
-                  </ul>
-                </div>
-              </div>
+                    <ul className="list-inline mb-0 ">
+                      <li className="list-inline-item me-5">
+                        <h5 className="font-weight-bold mb-0 d-block">
+                          {userPhotos.uploads.length}
+                        </h5>
+                        <div className="" color="inherit">
+                          {" "}
+                          <i className="fa fa-picture-o mr-1"></i>Photos
+                        </div>
+                      </li>
+                      <li className="list-inline-item">
+                        <h5 className="font-weight-bold mb-0 d-block">
+                          {profileUser.friends.length}
+                        </h5>
+                        <Typography>
+                          <i className="fa fa-user-circle-o mr-1"></i>Followers
+                        </Typography>
+                      </li>
+                      <li className="list-inline-item "></li>
+                    </ul>
+                  </Box>
+                </Box>
 
-              <div class="py-4 px-4">
-                <ThemeProvider theme={theme}>
+                <Box
+                  class="py-4 px-4"
+                  sx={{
+                    bgcolor: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? theme.palette.background.paper
+                        : theme.palette.background.paper,
+                  }}
+                >
                   <ToggleButtonGroup
                     variant="contained"
                     color="primary"
@@ -292,9 +350,9 @@ function Profile(props) {
                     {photos.length > 0 ? (
                       photos.map((photo) => (
                         <StyledImageListItem key={photo}>
-                          <img src={photo} alt="photo" loading="lazy" />
+                          <img src={photo} alt="album" loading="lazy" />
                           {isMyProfile && (
-                            <div
+                            <Box
                               className="buttons text-center"
                               style={{
                                 position: "absolute",
@@ -354,25 +412,25 @@ function Profile(props) {
                                   handleConfirm={handleConfirmPhotoChange}
                                 />
                               )}
-                            </div>
+                            </Box>
                           )}
                         </StyledImageListItem>
                       ))
                     ) : (
-                      <div className="text-center text-nowrap">
+                      <Box className="text-center text-nowrap">
                         <Typography variant="h6">
                           Empty folder — Go back and add some photos!
                         </Typography>
-                      </div>
+                      </Box>
                     )}
                   </Box>
-                </ThemeProvider>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+                </Box>
+              </Box>
+            </Box>
+          </Container>
+        )}
+      </Paper>
+    </Dialog>
   );
 }
 

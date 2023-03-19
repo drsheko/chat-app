@@ -4,9 +4,7 @@ import moment from "moment";
 import { useContext, useState, useEffect, useCallback } from "react";
 import { UserContext } from "../App";
 import { useSocket } from "../context/socketProvider";
-import Image from "react-bootstrap/Image";
-import { styled } from "@mui/material/styles";
-import Badge from "@mui/material/Badge";
+import Box from "@mui/material/Box";
 import ListItem from "@mui/material/ListItem";
 import Avatar from "@mui/material/Avatar";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
@@ -18,7 +16,6 @@ function Contacts(props) {
   var { user } = useContext(UserContext);
   const socket = useSocket();
   const [friends, setFriends] = useState([]);
-  const [localSelectedChat, setLocalSelectedChat] = useState(null);
   const [chatRooms, setChatRooms] = useState([]);
   const [error, setError] = useState(null);
   const [offlineFriend, setOfflineFriend] = useState(null);
@@ -97,18 +94,6 @@ function Contacts(props) {
   }, [user]);
 
   useEffect(() => {
-    /* const getFriends = async () => {
-      try {
-        var id = user._id;
-        var url = `http://localhost:3001/api/contacts/${id}/friends`;
-        var res = await axios.post(url);
-        var data = await res.data.friends;
-        setFriends(data);
-        console.log('friends',data);
-      } catch (err) {
-        setError(err);
-      }
-    };*/
     const getAllChatRooms = async () => {
       var userId = user._id;
       var url = "http://localhost:3001/api/user/all-rooms/join";
@@ -143,7 +128,7 @@ function Contacts(props) {
         if (friends.length > 1) {
           let update = [];
           friends.map((fr) => {
-            if (fr._id == data.id) {
+            if (fr._id === data.id) {
               update.push({ ...fr, isOnline: "true" });
               return;
             }
@@ -151,26 +136,26 @@ function Contacts(props) {
           });
           setFriends(update);
         }
-    });
+      });
       socket.on("offline", (data) => {
-          if (friends.length > 1) {
-            let update = [];
-            friends.map((fr) => {
-              if (fr._id == data.id) {
-                update.push({ ...fr, isOnline: "false" });
-                return;
-              }
-              update.push(fr);
-            });
-            setFriends(update);
-          }
+        if (friends.length > 1) {
+          let update = [];
+          friends.map((fr) => {
+            if (fr._id === data.id) {
+              update.push({ ...fr, isOnline: "false" });
+              return;
+            }
+            update.push(fr);
+          });
+          setFriends(update);
+        }
       });
       socket.on("message", (message) => {
         console.log("got msg", message);
         var updatedChatRooms = [];
 
         chatRooms.forEach((room) => {
-          if (room._id == message.chatRoom) {
+          if (room._id === message.chatRoom) {
             room.messages = [...room.messages, message];
             room.unreadedMessages += 1;
             updatedChatRooms.push(room);
@@ -184,7 +169,7 @@ function Contacts(props) {
       });
       socket.on("photo message", (message) => {
         var updatedChatRooms = chatRooms.map((room) => {
-          if (room._id == message.msg.chatRoom) {
+          if (room._id === message.msg.chatRoom) {
             room.messages = [...room.messages, message.msg];
             room.unreadedMessages += 1;
             return room;
@@ -200,7 +185,7 @@ function Contacts(props) {
       socket.on("voice message", (message) => {
         console.log("got msg", message);
         var updatedChatRooms = chatRooms.map((room) => {
-          if (room._id == message.msg.chatRoom) {
+          if (room._id === message.msg.chatRoom) {
             room.messages = [...room.messages, message.msg];
             room.unreadedMessages += 1;
 
@@ -217,7 +202,7 @@ function Contacts(props) {
         }
       });
     }
-  }, [socket,friends]);
+  }, [socket, friends]);
 
   useEffect(() => {
     if (props.addedFriend) {
@@ -227,52 +212,52 @@ function Contacts(props) {
 
   return (
     <div>
-      <div className="my-2 p-2 bg-light">
+      <Box
+        className="my-2 p-2 "
+        sx={{ backgroundColor: "grey.100", borderRadius: "5px" }}
+      >
         {friends.length > 0 ? (
           <div className="d-flex">
             {friends.map((fr) => (
               <>
-                {fr.isOnline === "true" ?( 
+                {fr.isOnline === "true" ? (
                   <div
-                  onClick={() => startChat(fr._id)}
-                  className="mx-2 order-1"
-                  key={fr._id}
-                >
-                  <OnlineBadge
-                    overlap="circular"
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    variant="dot"
+                    onClick={() => startChat(fr._id)}
+                    className="mx-2 order-1"
+                    key={fr._id}
                   >
-                    <Avatar alt={fr.username} src={fr.avatarURL} />
-                  </OnlineBadge>
-                  <div>{fr.username}</div>
-              </div>
-                )
-                : (
+                    <OnlineBadge
+                      overlap="circular"
+                      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                      variant="dot"
+                    >
+                      <Avatar alt={fr.username} src={fr.avatarURL} />
+                    </OnlineBadge>
+                    <div>{fr.username}</div>
+                  </div>
+                ) : (
                   <div
-                  onClick={() => startChat(fr._id)}
-                  className="mx-2 order-2"
-                  key={fr._id}
-                >
-                  <OfflineBadge
-                    overlap="circular"
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    variant="dot"
+                    onClick={() => startChat(fr._id)}
+                    className="mx-2 order-2"
+                    key={fr._id}
                   >
-                    <Avatar alt={fr.username} src={fr.avatarURL} />
-                  </OfflineBadge>
-                   <div>{fr.username}</div>
-                   </div>
-                )
-                }
-                </>
-                )
-            )}
+                    <OfflineBadge
+                      overlap="circular"
+                      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                      variant="dot"
+                    >
+                      <Avatar alt={fr.username} src={fr.avatarURL} />
+                    </OfflineBadge>
+                    <div>{fr.username}</div>
+                  </div>
+                )}
+              </>
+            ))}
           </div>
         ) : (
           "No friends"
         )}
-      </div>
+      </Box>
       <div>
         {chatRooms.length > 0 ? (
           <>
@@ -291,12 +276,12 @@ function Contacts(props) {
                             r.messages.length > 0 ? (
                               r.messages[r.messages.length - 1].type ===
                               "photo" ? (
-                                <div>PHOTO MESSAGE</div>
+                                <div>photo msg</div>
                               ) : r.messages[r.messages.length - 1].type ===
                                 "voice" ? (
-                                <div>VOICE MESSAGE</div>
+                                <div>voice note</div>
                               ) : (
-                                <div>
+                                <div className="overflow-hidden">
                                   {r.messages[r.messages.length - 1].message}
                                 </div>
                               )
@@ -306,18 +291,30 @@ function Contacts(props) {
                           }
                         />
                         {r.unreadedMessages > 0 ? (
-                          <div
+                          <Box
                             className="bg-primary rounded-circle text-light text-center me-5"
-                            style={{ width: "22px", height: "22px" }}
+                            sx={{
+                              width: "22px",
+                              height: "22px",
+                            }}
                           >
-                            <div className="fs-6 fw-bold">
+                            <Box
+                              className="fs-6 fw-bold"
+                              sx={{
+                                bgcolor: (theme) =>
+                                  theme.palette.mode === "dark"
+                                    ? theme.palette.primary.main
+                                    : theme.palette.primary.main,
+                                borderRadius: "50%",
+                              }}
+                            >
                               {r.unreadedMessages}{" "}
-                            </div>
-                          </div>
+                            </Box>
+                          </Box>
                         ) : (
                           ""
                         )}
-                        <div>
+                        <div className="text-muted">
                           {r.messages.length > 0 ? (
                             <div>
                               {moment(
