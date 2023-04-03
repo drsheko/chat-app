@@ -78,10 +78,10 @@ function Calling({
                   >
                     Calling
                     <span className="mx-1">{r.username}</span>
-                    <span class="spinner">
-                      <div class="bounce1"></div>
-                      <div class="bounce2"></div>
-                      <div class="bounce3"></div>
+                    <span className="spinner">
+                      <div className="bounce1"></div>
+                      <div className="bounce2"></div>
+                      <div className="bounce3"></div>
                     </span>
                   </Typography>
                   <IconButton
@@ -113,17 +113,17 @@ function Calling({
                   display="inline"
                 >
                   {r.username}
-                  <span class="spinner">
+                  <span className="spinner">
                     <div
-                      class="bounce1"
+                      className="bounce1"
                       style={{ backgroundColor: "black" }}
                     ></div>
                     <div
-                      class="bounce2"
+                      className="bounce2"
                       style={{ backgroundColor: "black" }}
                     ></div>
                     <div
-                      class="bounce3"
+                      className="bounce3"
                       style={{ backgroundColor: "black" }}
                     ></div>
                   </span>

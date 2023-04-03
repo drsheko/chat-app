@@ -98,7 +98,7 @@ const Signup = () => {
               overlap="circular"
               anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               badgeContent={
-                <label htmlFor="avatar" class="bi bi-camera-fill" type="button">
+                <label htmlFor="avatar" className="bi bi-camera-fill" type="button">
                   {" "}
                 </label>
               }

@@ -22,7 +22,6 @@ const AudioRecorder = (props) => {
    e.preventDefault()
     await recorder.stopRecording();
     let blob = await recorder.getBlob();
-    console.log(blob)
     let audioSrc = window.URL
               .createObjectURL(blob);
     setAudioURL(audioSrc) 

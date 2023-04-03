@@ -94,7 +94,6 @@ function Profile(props) {
       let success = res.data.success;
       if (success) {
         setSelectedPhoto(null);
-        console.log(selectedPhoto);
         let updatedUser = res.data.user;
         setUser(updatedUser);
         localStorage.setItem("CHAT_APP_user", JSON.stringify(updatedUser));
@@ -307,7 +306,7 @@ function Profile(props) {
                 </Box>
 
                 <Box
-                  class="py-4 px-4"
+                  className="py-4 px-4"
                   sx={{
                     bgcolor: (theme) =>
                       theme.palette.mode === "dark"

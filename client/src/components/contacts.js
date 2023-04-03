@@ -18,7 +18,6 @@ function Contacts(props) {
   const [friends, setFriends] = useState([]);
   const [chatRooms, setChatRooms] = useState([]);
   const [error, setError] = useState(null);
-  const [offlineFriend, setOfflineFriend] = useState(null);
   const startChat = async (frndID) => {
     var myID = user._id;
     var friendId = frndID;
@@ -33,7 +32,6 @@ function Contacts(props) {
       var chatRoom = await res.data.chatRoom.room;
 
       if (res.data.chatRoom.isNew) {
-        console.log("created room");
 
         setChatRooms((prevState) => [chatRoom, ...prevState]);
       }
@@ -87,7 +85,7 @@ function Contacts(props) {
       var res = await axios.post(url);
       var data = await res.data.friends;
       setFriends(data);
-      console.log("friends", data);
+      
     } catch (err) {
       setError(err);
     }
@@ -96,13 +94,12 @@ function Contacts(props) {
   useEffect(() => {
     const getAllChatRooms = async () => {
       var userId = user._id;
-      var url = "http://localhost:3001/api/user/all-rooms/join";
+      
       try {
         var res = await axios.post(
           `http://localhost:3001/api/${userId}/all-rooms/join`
         );
         var rooms = await res.data.rooms;
-        console.log("my rooms", rooms);
         // set unreaded messages for each chat
         rooms = await Promise.all(
           rooms.map(async (room) => {
@@ -151,7 +148,6 @@ function Contacts(props) {
         }
       });
       socket.on("message", (message) => {
-        console.log("got msg", message);
         var updatedChatRooms = [];
 
         chatRooms.forEach((room) => {
@@ -183,7 +179,6 @@ function Contacts(props) {
       });
 
       socket.on("voice message", (message) => {
-        console.log("got msg", message);
         var updatedChatRooms = chatRooms.map((room) => {
           if (room._id === message.msg.chatRoom) {
             room.messages = [...room.messages, message.msg];
@@ -194,11 +189,8 @@ function Contacts(props) {
           return room;
         });
 
-        console.log("rooms", updatedChatRooms);
         if (updatedChatRooms.length > 0) {
-          console.log("update rooms");
           setChatRooms(updatedChatRooms);
-          console.log("updated", updatedChatRooms);
         }
       });
     }

@@ -7,6 +7,12 @@ const userSchema = new Schema({
   avatarURL: { type: String, default: "unkownUserDefault.webp" },
   isOnline : { type: String, default: false},
   friends: [{ type: Schema.Types.ObjectId, ref: "user", default: []}],
-});
+  calls :  [{ type: Schema.Types.ObjectId, ref: "call", default: []}],
+  pictures: {
+    "uploads":[],
+    "messages":[]
+  }
+})
+
 
 module.exports = mongoose.model("user", userSchema, "users");

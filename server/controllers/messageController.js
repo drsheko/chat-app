@@ -27,7 +27,7 @@ exports.uploadPhotoMsg = [
   upload.single("photoMsg"),
   async (req, res) => {
     var uploadedFileURL;
-    console.log(req.file);
+   
     const file = req.file;
 
     const fileName = file.originalname + new Date();

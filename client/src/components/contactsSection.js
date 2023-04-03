@@ -32,7 +32,7 @@ function ContactSection(props) {
   useEffect(() => {
     if (chatRooms !== null) {
       socket.emit("join rooms", chatRooms);
-      console.log("joined rooms from section");
+      
     }
   }, [chatRooms]);
   useEffect(() => {

@@ -3,7 +3,6 @@ const Call = require("../models/callModal");
 const mongoose = require("mongoose");
 
 exports.create_call = async (req, res) => {
-  console.log(req.body);
   let caller = req.body.caller;
   let recipient = req.body.recipient;
   let status = req.body.status;
@@ -38,7 +37,7 @@ exports.create_call = async (req, res) => {
   });
 };
 exports.cancelled_call = async (req, res) => {
-  console.log(req.body);
+
   let caller = req.body.caller;
   let recipient = req.body.recipient;
   let status = req.body.status;
@@ -75,7 +74,7 @@ exports.getCalls_By_UserId =async(req, res) =>{
     if (error) {
       return res.status(401).json({ success: false, error });
     }
-    console.log(calls)
+   
     return res.status(200).json({success:true, calls})
   })
 }

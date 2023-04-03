@@ -1,10 +1,7 @@
 import React from "react";
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import ChangePasswordForm from "./changePasswordForm";
-import ChangeProfileInfo from "./changeProfileInfo";
-import { UserContext } from "../App";
-import Gallery from "./gallery";
+// ------------Mui import ------------//
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import AppBar from "@mui/material/AppBar";
@@ -17,11 +14,6 @@ import Card from "@mui/material/Card";
 import Badge from "@mui/material/Badge";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CollectionsIcon from "@mui/icons-material/Collections";
-import { styled } from "@mui/material/styles";
-import MuiAccordion from "@mui/material/Accordion";
-import MuiAccordionSummary from "@mui/material/AccordionSummary";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import DoubleArrowRoundedIcon from "@mui/icons-material/DoubleArrowRounded";
 import FileUploadRoundedIcon from "@mui/icons-material/FileUploadRounded";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -30,40 +22,18 @@ import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+//--------project import---------//
 import resizePhoto from "../tools/compressUpload";
-const Accordion = styled((props) => (
-  <MuiAccordion disableGutters elevation={5} square {...props} />
-))(({ theme }) => ({
-  border: `3px solid ${theme.palette.divider}`,
-  "&:not(:last-child)": {
-    borderBottom: 0,
-  },
-  "&:before": {
-    display: "none",
-  },
-}));
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+} from "../styled_components/accordion";
+import ChangePasswordForm from "./changePasswordForm";
+import ChangeProfileInfo from "./changeProfileInfo";
+import { UserContext } from "../App";
+import Gallery from "./gallery";
 
-const AccordionSummary = styled((props) => (
-  <MuiAccordionSummary
-    expandIcon={<DoubleArrowRoundedIcon sx={{ color: "white" }} />}
-    {...props}
-  />
-))(({ theme }) => ({
-  backgroundColor: "#2196f3",
-  color: "white",
-  flexDirection: "row-reverse",
-  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-    transform: "rotate(90deg)",
-  },
-  "& .MuiAccordionSummary-content": {
-    marginLeft: theme.spacing(1),
-  },
-}));
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-}));
 function EditProfile(props) {
   let { user, setUser } = useContext(UserContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -87,9 +57,7 @@ function EditProfile(props) {
 
   const handleUploadFile = async (e) => {
     var file = e.target.files[0];
-    console.log("file before:", file);
     file = await resizePhoto(file);
-    console.log("file after: ", file);
     setUpload(file);
     setIsSelected(true);
     if (e.target.files && e.target.files[0]) {
@@ -251,9 +219,9 @@ function EditProfile(props) {
                 overlap="circular"
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 badgeContent={
-                  <Box class="btn-group dropend">
+                  <Box className="btn-group dropend">
                     <i
-                      class="bi bi-camera-fill"
+                      className="bi bi-camera-fill"
                       type="button"
                       id="demo-positioned-button"
                       aria-controls={

@@ -9,9 +9,7 @@ import  Typography  from "@mui/material/Typography";
 import moment from 'moment'
 import PhoneMissedRoundedIcon from '@mui/icons-material/PhoneMissedRounded';
 import PhoneSharpIcon from '@mui/icons-material/PhoneSharp';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -50,10 +48,11 @@ function ChatMsg({message, userId, sender}) {
   return (
     <div style={{display:'flex' ,flexDirection:'column'}}>
         {
-            message.postedBy._id ==userId?
+            message.postedBy._id ===userId?
                 <Box
-                    component="div"
+                    
                     sx={{
+                      maxWidth: [250,300,450,650],
                     alignSelf: "end",
                     p: 1,
                     m: 1,
@@ -67,6 +66,7 @@ function ChatMsg({message, userId, sender}) {
                     borderRadius: 2,
                     fontSize: "0.875rem",
                     fontWeight: "700",
+                    
                     }}
                 >
                      {
@@ -127,7 +127,11 @@ function ChatMsg({message, userId, sender}) {
                         
                         
                        :message.type==='voice'?
-                       <audio src={message.message} controls/>
+                       <Box sx={{
+                        maxWidth:[200, 300, 450, 600]
+                       }}>
+                          <audio src={message.message} controls style={{maxWidth:'100%'}}/>
+                       </Box>
                        :''
                   
                   }
@@ -207,7 +211,12 @@ function ChatMsg({message, userId, sender}) {
                           </Grid>
                          
                        :message.type==='voice'?
-                       <audio src={message.message} controls/>
+                       <Box sx={{
+                        maxWidth:[200, 300, 450, 600]
+                       }}>
+                          <audio src={message.message} controls style={{maxWidth:'100%'}}/>
+                       </Box>
+                       
                        :''
                   }
                    

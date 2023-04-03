@@ -89,7 +89,8 @@ function ChangePasswordForm(props) {
           setOldPassword({ ...oldPassword, message: "incorrect password!!!" });
         }
       } catch (error) {
-        console.log(error);
+        setSuccess(false);
+          setOldPassword({ ...oldPassword, message: "incorrect password!!!" });
       }
     }
   };

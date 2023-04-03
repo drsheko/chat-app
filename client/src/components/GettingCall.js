@@ -70,10 +70,10 @@ function GettingCall(props) {
                 component="div"
               >
                 {caller.username} is calling
-                <span class="spinner">
-                  <div class="bounce1"></div>
-                  <div class="bounce2"></div>
-                  <div class="bounce3"></div>
+                <span className="spinner">
+                  <div className="bounce1"></div>
+                  <div className="bounce2"></div>
+                  <div className="bounce3"></div>
                 </span>
               </Typography>
             </Toolbar>
@@ -98,10 +98,10 @@ function GettingCall(props) {
               component="div"
             >
               {caller.username}
-              <span class="spinner">
-                <div class="bounce1" style={{ backgroundColor: "black" }}></div>
-                <div class="bounce2" style={{ backgroundColor: "black" }}></div>
-                <div class="bounce3" style={{ backgroundColor: "black" }}></div>
+              <span className="spinner">
+                <div className="bounce1" style={{ backgroundColor: "black" }}></div>
+                <div className="bounce2" style={{ backgroundColor: "black" }}></div>
+                <div className="bounce3" style={{ backgroundColor: "black" }}></div>
               </span>
             </Typography>
           </List>

@@ -1,32 +1,21 @@
 import React from "react";
 import axios from "axios";
 import { useState, useEffect, useContext, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
 import { ThemeContext, UserContext } from "../App";
-import PeerProvider, { usePeer } from "../context/peerProvider";
-import SocketProvider, { useSocket } from "../context/socketProvider";
+import { usePeer } from "../context/peerProvider";
+import { useSocket } from "../context/socketProvider";
 import BottomNavbar from "./bottomNavbar";
 import ContactSection from "./contactsSection";
-import Home from "./home";
-import LogoutSharpIcon from "@mui/icons-material/LogoutSharp";
 import Toolbar from "@mui/material/Toolbar";
-import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
 import AppBar from "@mui/material/AppBar";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import Image from "react-bootstrap/Image";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import ModeNightIcon from "@mui/icons-material/ModeNight";
 import Container from "react-bootstrap/Container";
 import ChatBox from "./chatBox";
-import CallModal from "./callModal";
 import GettingCall from "./GettingCall";
 import Calling from "./Calling";
 import VideoPlayer from "./videoPlayer";
@@ -51,9 +40,7 @@ function Dashboard() {
   const [isCalling, setIsCalling] = useState(false);
   const [isGettingCall, setIsGettingCall] = useState(false);
   const [isCallEnded, setIsCallEnded] = useState(false);
-  const [call, setCall] = useState();
   const [callChatRoom, setCallChatRoom] = useState(null);
-  const [answer, setAnswer] = useState(false);
   const [decline, setDecline] = useState(false);
   const [chatRooms, setChatRooms] = useState(null);
   const [isCallAnswered, setIsCallAnswered] = useState(false);
@@ -64,7 +51,6 @@ function Dashboard() {
   const [profileId, setProfileId] = useState(null);
 
   const muteAudio = () => {
-    console.log(localVideo.getAudioTracks()[0]);
     localVideo.getAudioTracks()[0].enabled =
       !localVideo.getAudioTracks()[0].enabled;
   };
@@ -101,18 +87,18 @@ function Dashboard() {
   // call
   const makeVideoCall = async (friendId) => {
     setIsCalling(true);
-    if(selectedChat){
+    if (selectedChat) {
       socket.roomId = selectedChat._id;
-    }else{
-      socket.roomId = await getChatRoomByCallerId(friendId)
+    } else {
+      socket.roomId = await getChatRoomByCallerId(friendId);
     }
-    
+
     var getUserMedia =
       navigator.mediaDevices.getUserMedia ||
       navigator.webkitGetUserMedia ||
       navigator.mozGetUserMedia ||
       navigator.mzGetUserMedia;
-    console.log(getUserMedia);
+
     let constraints = { video: { width: 1280, height: 720 }, audio: true };
     getUserMedia(constraints)
       .then((localStream) => {
@@ -204,7 +190,6 @@ function Dashboard() {
         status: "answered",
         duration: callDuration,
       });
-      console.log(res);
     } catch (error) {
       console.log(error);
     }
@@ -249,14 +234,6 @@ function Dashboard() {
       }
       setLocalVideo(null);
       setRemoteVideo(null);
-
-      // close the call from my end
-      //currentCallRef.close()
-      /*
-     var chatRoom = await getChatRoomByCallerId(currentCall.peer)
-     socket.emit("end call", {
-      room: chatRoom._id,
-    }) */
       // close the call from my end
       currentCallRef.current.close();
       currentCallRef.current = null;
@@ -289,19 +266,9 @@ function Dashboard() {
       remoteVideoRef.current.srcObject = remoteStream;
       var playPromise = remoteVideoRef.current.play();
       if (playPromise !== undefined) {
-        playPromise
-          .then((_) => {
-            // Automatic playback has already started!
-            // Show playing UI.
-          })
-          .catch((error) => {
-            // Automatic play was stopped
-            // Show paused UI.
-          });
+        playPromise.then((_) => {}).catch((error) => {});
       }
     });
-    //call.on('close',endCall())
-    //currentCallRef.current = call;
     setCurrentCall(call);
   };
 
@@ -415,10 +382,10 @@ function Dashboard() {
       ) : (
         <div>
           <Box sx={{ flexGrow: 1 }} className=" sticky-top">
-            <AppBar color='' 
-              elevation={darkMode?0:15}
+            <AppBar
+              color=""
+              elevation={darkMode ? 0 : 15}
               sx={{ position: "static", top: 0, left: 0, right: 0 }}
-              
             >
               <Toolbar>
                 <Typography
@@ -445,7 +412,11 @@ function Dashboard() {
                     }}
                     color="inherit"
                   >
-                    {darkMode ? <LightModeIcon color='warning'/> : <ModeNightIcon color='primary'/>}
+                    {darkMode ? (
+                      <LightModeIcon color="warning" />
+                    ) : (
+                      <ModeNightIcon color="primary" />
+                    )}
                   </IconButton>
                   <IconButton
                     size="large"
@@ -464,8 +435,7 @@ function Dashboard() {
             </AppBar>
           </Box>
 
-          <Container className="mt-5 px-1"  >
-            
+          <Container className="mt-5 px-1">
             {key === "chats" ? (
               <ContactSection
                 setOpenChat={setOpenChat}
@@ -473,7 +443,11 @@ function Dashboard() {
                 openProfile={openProfile}
               />
             ) : key === "calls" ? (
-                <Calls  makeVideoCall={makeVideoCall} openProfile={openProfile}  setCallRecipient={setCallRecipient} />
+              <Calls
+                makeVideoCall={makeVideoCall}
+                openProfile={openProfile}
+                setCallRecipient={setCallRecipient}
+              />
             ) : key === "contacts" ? (
               "people"
             ) : (

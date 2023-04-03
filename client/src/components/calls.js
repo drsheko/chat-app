@@ -16,7 +16,7 @@ useEffect(()=>{
             var res = await axios.post(url,{
                 userId:user._id
             });
-            console.log(res.data.calls)
+            
             setCalls(res.data.calls)
         }
         catch(error){

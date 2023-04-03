@@ -2,16 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
-import Card from "react-bootstrap/Card";
-import Popover from "@mui/material/Popover";
-import Form from "react-bootstrap/Form";
-import CloseButton from "react-bootstrap/CloseButton";
-import Modal from "react-bootstrap/Modal";
 import { ThemeContext, UserContext } from "../App";
 import { useSocket } from "../context/socketProvider";
-import { Peer } from "peerjs";
 import { usePeer } from "../context/peerProvider";
-import CallModal from "./callModal";
 import ChatMsg from "./chatMsg";
 import InputEmoji from "react-input-emoji";
 import Button from "@mui/material/Button";
@@ -30,18 +23,14 @@ import DialogActions from "@mui/material/DialogActions";
 import SendIcon from "@mui/icons-material/Send";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Paper from "@mui/material/Paper";
-import InputBase from "@mui/material/InputBase";
 import CallIcon from "@mui/icons-material/Call";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import { styled } from "@mui/material/styles";
 import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
-import KeyboardVoiceSharpIcon from '@mui/icons-material/KeyboardVoiceSharp';
 import CircularProgress from "@mui/material/CircularProgress";
-import { red, blue } from "@mui/material/colors";
-import { Container, Stack } from "@mui/material";
-import Calling from "./Calling";
+import  Stack  from "@mui/material/Stack";
 import AudioRecorder from "./audioRecorder";
 import Notification from "./notification";
 import resizePhoto from "../tools/compressUpload";
@@ -78,17 +67,10 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const SmallAvatar = styled(Avatar)(({ theme }) => ({
-  width: 22,
-  height: 22,
-  border: `2px solid ${theme.palette.background.paper}`,
-}));
-
 function ChatBox(props) {
   var {user} = useContext(UserContext);
   var {darkMode} = useContext(ThemeContext);
   var socket = useSocket();
-  var myPeer = usePeer();
   var chat = props.selectedChat;
   const descriptionElementRef = useRef(null);
   var bottom = useRef(null);
@@ -112,12 +94,10 @@ function ChatBox(props) {
   const [isSelected, setIsSelected] = useState(false);
   const [image, setImage] = useState(null);
   const [audioRecorder, setAudioRecorder] = useState(false);
-  const [voiceMsg, setVoiceMsg] = useState(null);
   const [voiceMsgURL, setVoiceMsgURL] = useState(null);
   const [notification, setNotification] =useState(null);
 
   function handleOnEnter(text) {
-    console.log("enter", text);
   }
 
   const handleUploadFile = async (e) => {
@@ -160,20 +140,18 @@ function ChatBox(props) {
         playPromise
           .then((_) => {
             // Automatic playback has already started!
-            // Show playing UI.
+           
           })
           .catch((error) => {
             // Automatic play was stopped
-            // Show paused UI.
+            
           });
       }
     });
-    //call.on('close',endCall())
     currentCallRef.current = call;
   };
 
   function endCall() {
-    console.log("call end working");
     if (!currentCallRef) return;
     try {
       // close cam and mic
@@ -202,7 +180,7 @@ function ChatBox(props) {
   }
 
   const handleKeyPress = (e) => {
-    if (e.key == "Enter") {
+    if (e.key === "Enter") {
       sendMessage();
     }
   };
@@ -290,7 +268,6 @@ function ChatBox(props) {
     }
   };
   const createVoiceMsg = async (message) => {
-    console.log('local createVoiceMsg- blob' , message)
     var uploadedVoiceURL;
     const formData = new FormData();
     formData.append("voiceMsg", message);
@@ -416,7 +393,7 @@ function ChatBox(props) {
           setNotification(data)
         }  
       }
-      console.log('sender arr',recipients)
+     
     });
   }, []);
   useEffect(() => {
@@ -443,12 +420,11 @@ function ChatBox(props) {
   }, []);
 
   useEffect(()=>{
-    console.log('we received notification', notification)
+    
   },[notification])
  
   useEffect(() => {
     if (document.readyState === "complete") {
-      console.log("readiiiiiiiiiiiiiii");
       scrollToBottom();
     }
   }, [document.readyState]);
@@ -478,7 +454,7 @@ function ChatBox(props) {
       } 
     }
     if(props.callSummaryMessage){
-      console.log('updatemessages')
+     
      getChatMessagesByRoomId(chat._id);
      props.setCallSummaryMessage(null)
     }
@@ -510,6 +486,7 @@ function ChatBox(props) {
           aria-labelledby="scroll-dialog-title"
           aria-describedby="scroll-dialog-description"
           TransitionComponent={Transition}
+          
         >
           { notification && <Notification notification={notification} />}
           {recipients== null ? ''
@@ -552,14 +529,14 @@ function ChatBox(props) {
             </Toolbar>
           </AppBar>
 }
-          <DialogContent dividers="true" >
+          <DialogContent dividers="true" sx={{padding:[1,2,4,5],  overflowX:'hidden'}}>
             <DialogContentText >
               <Box
                 variant="outlined"
                 id="scroll-dialog-description"
                 ref={descriptionElementRef}
                 tabIndex={-1}
-                style={{ padding: 10, minHeight: '25rem'  }}
+                style={{ padding: 1, minHeight: '25rem'  }}
                 
               >
                 {
@@ -572,6 +549,7 @@ function ChatBox(props) {
                     ))
                   : ""
                 }
+                
                 {isSelected ? (
                   <Stack direction="row" sx={{ alignSelf: "end" }}>
                     {isUploading ? (
@@ -623,12 +601,13 @@ function ChatBox(props) {
               </Box>
             </DialogContentText>
           </DialogContent>
-          <DialogActions>
+          
             <Paper
-              component="form"
-              sx={{ display: "flex", alignItems: "center", width: "100%" }}
+              
+              sx={{ display: "flex", alignItems: "center", width: "100%", maxWidth:'100%' }}
             >
-              <div class="image-upload">
+            
+              <div className="image-upload">
                 <label for="file-input">
                   <CollectionsIcon className="fileInput-icon" color='primary'/>
                 </label>
@@ -643,18 +622,18 @@ function ChatBox(props) {
              <audio hidden={!audioRecorder} controls></audio>
              <AudioRecorder  sendVoiceMessage={sendVoiceMessage}/>
              
-              <InputEmoji
+             <InputEmoji
                 value={text}
                 onChange={setText}
                 cleanOnEnter
                 onEnter={handleOnEnter}
                 placeholder="Type a message"
                 theme={darkMode?'dark':'light'}
-                style={{color:'black !important'}}
+                
               />
-              <Divider orientation="vertical" />
-
-              <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+             
+              
+             
               <IconButton
                 color="primary"
                 sx={{ p: "10px" }}
@@ -665,7 +644,7 @@ function ChatBox(props) {
                 <SendIcon />
               </IconButton>
             </Paper>
-          </DialogActions>
+          
         </Dialog>
       )}
     </div>

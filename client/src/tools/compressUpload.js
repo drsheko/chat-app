@@ -7,7 +7,6 @@ const resizePhoto= async(file) => {
         type: 'image/jpeg',
     });
     compressedFile.name=file.name;
-   
     return compressedFile
 }
 

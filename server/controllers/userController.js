@@ -152,7 +152,7 @@ exports.get_USER_Friends = (req, res) => {
 };
 
 exports.get_USER_BY_userID = async (req, res) => {
-  console.log(req.body);
+  
   var id = req.body.userId;
   User.findById(id, (error, user) => {
     if (error) {
@@ -342,7 +342,7 @@ exports.Remove_photo_from_Gallery = async (req, res) => {
 };
 
 exports.unFollow_Friend = async (req, res) => {
-  console.log(req.body);
+ 
   var userId = req.body.userId;
   var friendId = req.body.friendId;
 

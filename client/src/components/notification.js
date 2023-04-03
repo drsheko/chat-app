@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import axios from 'axios'
-import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import Slide from "@mui/material/Slide";
 import IconButton from "@mui/material/IconButton";
@@ -25,7 +24,7 @@ export default function Notification(props) {
   const [sender, setSender] =useState(null);
   const { vertical, horizontal } = state;
   const handleClick = (Transition) => () => {
-    console.log("noti clicked");
+   
     setTransition(() => Transition);
     setOpen(true);
   };

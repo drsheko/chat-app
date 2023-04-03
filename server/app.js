@@ -44,10 +44,8 @@ const peerServer = ExpressPeerServer(httpServer, {
 app.use("/peerjs", peerServer);
 
 peerServer.on("connection", (client) => {
-  console.log("client connected to Peer: ", client.id);
 });
 peerServer.on("disconnect", (client) => {
-  console.log("client disconnected");
 });
 
 // view engine setup
@@ -67,7 +65,7 @@ passport.use(
 
       bcrypt.compare(password, user.password, (err, res) => {
         if (err) {
-          return done(console.log(err));
+          return done();
         }
         if (!res) {
           return done(null, false, { error: "Incorrect password" });
@@ -129,7 +127,6 @@ io.on("connection", (socket) => {
   const id = socket.handshake.query.id;
   var myrooms = [];
   socket.emit("connected", id);
-  console.log("user connected to server : ", id);
   socket.on("join", (chat) => {
     var chatId = chat._id;
     socket.join(chatId);
@@ -144,7 +141,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", (data) => {
-    console.log(data);
     io.in(data.room).emit("message", {
       message: data.message,
       postedBy: data.sender,
@@ -154,7 +150,6 @@ io.on("connection", (socket) => {
   });
   // photo message
   socket.on("chat photo message", (data) => {
-    console.log(data);
     io.in(data.newMessage.chatRoom).emit("photo message", {
       msg: data.newMessage,
     });
@@ -162,28 +157,23 @@ io.on("connection", (socket) => {
 
   // voice message
   socket.on("chat voice message", (data) => {
-    console.log(data);
     io.in(data.newMessage.chatRoom).emit("voice message", {
       msg: data.newMessage,
     });
   });
   socket.on("cancel call", (data) => {
-    console.log("cancel call from caller", data.room);
     io.in(data.room).emit("cancel call request", { data });
   });
 
   socket.on("decline call", (data) => {
-    console.log("decline call from callee", data.room);
     io.in(data.room).emit("decline call request", { data });
   });
   socket.on("end call", (data) => {
-    console.log("call end");
     io.in(data.room).emit("recieve end call", { data });
   });
   socket.on("disconnect", (reason) => {
     if (myrooms.length > 0) {
       myrooms.map((r) => {
-        console.log("emit in room:", r, "user disconnected:", id);
         io.in(r).emit("offline", { id });
       });
     }
@@ -192,7 +182,7 @@ io.on("connection", (socket) => {
       $set: {
         isOnline: false,
       },
-    }).exec(console.log("user disconnected", reason));
+    })
   });
 });
 

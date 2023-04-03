@@ -1,9 +1,10 @@
 import React from 'react';
+import Logout from './logout';
 
 function Settings(props) {
     return (
         <div>
-            Settings here
+            <Logout/>
         </div>
     );
 }

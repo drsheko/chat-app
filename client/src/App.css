@@ -1,3 +1,8 @@
+html,body{
+  padding: 0;
+  margin:0;
+}
+
 
 /* ===== MENU ===== */
 .menu {
@@ -47,10 +52,12 @@
   }
   .abs{
     position: absolute;
-    top: 0;
-    right: 0;
-    height: 200px;
-    width: 200px;
+    top:10px;
+    right: 10px;
+    max-height: 30%;
+    max-width: 30%;
+    object-fit: fill;
+    border-radius: 5%;
     background-color: #5172c3;
   }
 
@@ -204,4 +211,10 @@ border-radius:25px;
   transform: translateY(6rem);
  
 }
+.MuiFormHelperText-root {
+  color: #e51029 !important;
+}
 
+.react-emoji {
+  max-width: calc(100% - 102px);
+}
