@@ -40,7 +40,7 @@ const Signup = () => {
       formData.append("password", form.password);
       formData.append("confirmPassword", form.confirmPassword);
       formData.append("avatarURL", upload);
-      var res = await axios.post("http://localhost:3001/api/sign-up", formData);
+      var res = await axios.post("https://chat-app-pi46.onrender.com/api/sign-up", formData);
       let success = res.data.success;
       if (success) {
         navigate("/login", { replace: true });

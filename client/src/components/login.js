@@ -30,7 +30,7 @@ const Login = (props) => {
   const handleFormSubmit = async (e) => {
     try {
       e.preventDefault();
-      var res = await axios.post("http://localhost:3001/api/login", {
+      var res = await axios.post("https://chat-app-pi46.onrender.com/api/login", {
         username: form.username,
         password: form.password,
       });

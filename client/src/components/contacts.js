@@ -24,7 +24,7 @@ function Contacts(props) {
     try {
       var userIds = [myID, friendId];
       var res = await axios.post(
-        "http://localhost:3001/api/rooms/chat/chat-open",
+        "https://chat-app-pi46.onrender.com/api/rooms/chat/chat-open",
         {
           userIds,
         }
@@ -52,7 +52,7 @@ function Contacts(props) {
   const markMessagesAsReaded = async (userId, chatRoomId) => {
     try {
       var res = await axios.post(
-        "http://localhost:3001/api/messages/chatRoom/mark-read",
+        "https://chat-app-pi46.onrender.com/api/messages/chatRoom/mark-read",
         {
           userId: userId,
           chatRoomId: chatRoomId,
@@ -65,7 +65,7 @@ function Contacts(props) {
   const getUnreadedMessages = async (userId, chatRoomId) => {
     try {
       var res = await axios.post(
-        "http://localhost:3001/api/messages/all/unread",
+        "https://chat-app-pi46.onrender.com/api/messages/all/unread",
         {
           userId: userId,
           chatRoomId: chatRoomId,
@@ -81,7 +81,7 @@ function Contacts(props) {
   const getFriends = useCallback(async () => {
     try {
       var id = user._id;
-      var url = `http://localhost:3001/api/contacts/${id}/friends`;
+      var url = `https://chat-app-pi46.onrender.com/api/contacts/${id}/friends`;
       var res = await axios.post(url);
       var data = await res.data.friends;
       setFriends(data);
@@ -97,7 +97,7 @@ function Contacts(props) {
       
       try {
         var res = await axios.post(
-          `http://localhost:3001/api/${userId}/all-rooms/join`
+          `https://chat-app-pi46.onrender.com/api/${userId}/all-rooms/join`
         );
         var rooms = await res.data.rooms;
         // set unreaded messages for each chat

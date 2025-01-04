@@ -59,7 +59,7 @@ function Profile(props) {
     },
   });
   const handleConfirmRemovePhoto = async (e) => {
-    let url = "http://localhost:3001/api/user/editProfile/removePicture";
+    let url = "https://chat-app-pi46.onrender.com/api/user/editProfile/removePicture";
     let photoType = type;
     try {
       let res = await axios.post(url, {
@@ -85,7 +85,7 @@ function Profile(props) {
     }
   };
   const handleConfirmPhotoChange = async (e) => {
-    let url = "http://localhost:3001/api/user/editProfile/changeAvatar";
+    let url = "https://chat-app-pi46.onrender.com/api/user/editProfile/changeAvatar";
     try {
       let res = await axios.post(url, {
         userId: user._id,
@@ -105,7 +105,7 @@ function Profile(props) {
   const addFriend = async () => {
     try {
       var contactId = id;
-      var url = `http://localhost:3001/api/${user._id}/${contactId}`;
+      var url = `https://chat-app-pi46.onrender.com/api/${user._id}/${contactId}`;
       var res = await axios.post(url);
       let success = res.data.success;
       if (success) {
@@ -118,7 +118,7 @@ function Profile(props) {
     }
   };
   const unfollow = async () => {
-    let url = "http://localhost:3001/api/user/removeFriend";
+    let url = "https://chat-app-pi46.onrender.com/api/user/removeFriend";
     try {
       let res = await axios.post(url, {
         userId: user._id,
@@ -142,7 +142,7 @@ function Profile(props) {
   }, []);
   useEffect(() => {
     const getProfileUser = async () => {
-      let url = "http://localhost:3001/api/users/user";
+      let url = "https://chat-app-pi46.onrender.com/api/users/user";
       try {
         let res = await axios.post(url, {
           userId: id,

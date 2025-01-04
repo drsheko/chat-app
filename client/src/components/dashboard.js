@@ -70,7 +70,7 @@ function Dashboard() {
     try {
       var userIds = [myID, friendId];
       var res = await axios.post(
-        "http://localhost:3001/api/rooms/chat/chat-open",
+        "https://chat-app-pi46.onrender.com/api/rooms/chat/chat-open",
         {
           userIds,
         }
@@ -124,7 +124,7 @@ function Dashboard() {
   };
 
   const createMessage = async (message, chat) => {
-    var url = "http://localhost:3001/api/messages/newMessage/create";
+    var url = "https://chat-app-pi46.onrender.com/api/messages/newMessage/create";
     try {
       var res = await axios.post(url, {
         chatId: chat._id,
@@ -143,7 +143,7 @@ function Dashboard() {
     var newMessage = await createMessage("missed", chatRoom);
     setCallSummaryMessage(newMessage);
     socket.emit("cancel call", { room: chatRoom._id, message: newMessage });
-    var url = "http://localhost:3001/api/calls/call/cancelledCall";
+    var url = "https://chat-app-pi46.onrender.com/api/calls/call/cancelledCall";
     try {
       let res = await axios.post(url, {
         caller: currentCall.provider._id,
@@ -157,7 +157,7 @@ function Dashboard() {
   const sendCallIsDeclined = async () => {
     var chatRoom = await getChatRoomByCallerId(currentCall.peer);
     var newMessage = await createMessage("missed", chatRoom);
-    var url = "http://localhost:3001/api/calls/call/saveCall";
+    var url = "https://chat-app-pi46.onrender.com/api/calls/call/saveCall";
     try {
       let res = await axios.post(url, {
         caller: currentCall.provider._id,
@@ -182,7 +182,7 @@ function Dashboard() {
       room: chatRoom._id,
       message: newMessage,
     });
-    var url = "http://localhost:3001/api/calls/call/saveCall";
+    var url = "https://chat-app-pi46.onrender.com/api/calls/call/saveCall";
     try {
       let res = await axios.post(url, {
         caller: currentCall.provider._id,
@@ -275,10 +275,10 @@ function Dashboard() {
   // --------------------useEffect Section----------------------------------------
   const getAllChatRooms = useCallback(async () => {
     var userId = user._id;
-    var url = "http://localhost:3001/api/user/all-rooms/join";
+    var url = "https://chat-app-pi46.onrender.com/api/user/all-rooms/join";
     try {
       var res = await axios.post(
-        `http://localhost:3001/api/${userId}/all-rooms/join`
+        `https://chat-app-pi46.onrender.com/api/${userId}/all-rooms/join`
       );
       var rooms = await res.data.rooms;
       setChatRooms(rooms);

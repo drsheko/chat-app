@@ -11,7 +11,7 @@ const Header = ({ setUser }) => {
   // logout
   const logout = async () => {
     try {
-      var res = await fetch("http://localhost:3001/api/logout");
+      var res = await fetch("https://chat-app-pi46.onrender.com/api/logout");
       setUser(null);
       localStorage.clear();
       navigate("/");

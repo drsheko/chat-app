@@ -33,7 +33,7 @@ export default function Notification(props) {
     setOpen(false);
   };
   const getUserByUserId =async (id) =>{
-    let url = 'http://localhost:3001/api/users/user'
+    let url = 'https://chat-app-pi46.onrender.com/api/users/user'
     try{
         let res = await axios.post( url,{
             userId:id
@@ -52,7 +52,7 @@ export default function Notification(props) {
         setSender(props.notification.postedBy)
       }else{
         const getUserByUserId =async (id) =>{
-            let url = 'http://localhost:3001/api/users/user'
+            let url = 'https://chat-app-pi46.onrender.com/api/users/user'
             try{
                 let res = await axios.post( url,{
                     userId:id

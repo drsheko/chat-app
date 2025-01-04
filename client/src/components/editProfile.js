@@ -81,7 +81,7 @@ function EditProfile(props) {
       setIsLoading(true);
       const response = await axios({
         method: "post",
-        url: "http://localhost:3001/api/user/editProfile/uploadAvatar",
+        url: "https://chat-app-pi46.onrender.com/api/user/editProfile/uploadAvatar",
         data: formData,
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -102,7 +102,7 @@ function EditProfile(props) {
 
   const handleConfirmPhotoChange = async () => {
     setIsLoading(true);
-    let url = "http://localhost:3001/api/user/editProfile/changeAvatar";
+    let url = "https://chat-app-pi46.onrender.com/api/user/editProfile/changeAvatar";
     try {
       let res = await axios.post(url, {
         userId: user._id,

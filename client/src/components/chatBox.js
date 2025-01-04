@@ -203,7 +203,7 @@ function ChatBox(props) {
   };
 
   const createMessage = async (message) => {
-    var url = "http://localhost:3001/api/messages/newMessage/create";
+    var url = "https://chat-app-pi46.onrender.com/api/messages/newMessage/create";
     try {
       var res = await axios.post(url, {
         chatId: chat._id,
@@ -218,7 +218,7 @@ function ChatBox(props) {
   };
 
   const createCallSummaryMessage = async (message) => {
-    var url = "http://localhost:3001/api/messages/newMessage/create";
+    var url = "https://chat-app-pi46.onrender.com/api/messages/newMessage/create";
     try {
       var res = await axios.post(url, {
         chatId: chat._id,
@@ -241,7 +241,7 @@ function ChatBox(props) {
     try {
       const response = await axios({
         method: "post",
-        url: "http://localhost:3001/api/messages/photo-msg/upload",
+        url: "https://chat-app-pi46.onrender.com/api/messages/photo-msg/upload",
         data: formData,
         headers: { "Content-Type": "multipart/form-data" },      
       });
@@ -253,7 +253,7 @@ function ChatBox(props) {
     } catch (error) {
       console.log(error);
     }
-    var url = "http://localhost:3001/api/messages/newMessage/create";
+    var url = "https://chat-app-pi46.onrender.com/api/messages/newMessage/create";
     try {
       var res = await axios.post(url, {
         chatId: chat._id,
@@ -274,7 +274,7 @@ function ChatBox(props) {
     try {
       const response = await axios({
         method: "post",
-        url: "http://localhost:3001/api/messages/voice-msg/upload",
+        url: "https://chat-app-pi46.onrender.com/api/messages/voice-msg/upload",
         data: formData,
         headers: { "Content-Type": "multipart/form-data" }, 
       });
@@ -284,7 +284,7 @@ function ChatBox(props) {
     } catch (error) {
       console.log(error);
     }
-    var url = "http://localhost:3001/api/messages/newMessage/create";
+    var url = "https://chat-app-pi46.onrender.com/api/messages/newMessage/create";
     try {
       var res = await axios.post(url, {
         chatId: chat._id,
@@ -367,7 +367,7 @@ function ChatBox(props) {
     
   };
   const getChatMessagesByRoomId = async(chatId) => {
-    var url = "http://localhost:3001/api/rooms/chat/active-chat";
+    var url = "https://chat-app-pi46.onrender.com/api/rooms/chat/active-chat";
     try {
       var res = await axios.post(url, {
         roomId : chatId
@@ -442,7 +442,7 @@ function ChatBox(props) {
 
   useEffect(()=>{
     const getChatMessagesByRoomId = async(chatId) => {
-      var url = "http://localhost:3001/api/rooms/chat/active-chat";
+      var url = "https://chat-app-pi46.onrender.com/api/rooms/chat/active-chat";
       try {
         var res = await axios.post(url, {
           roomId : chatId

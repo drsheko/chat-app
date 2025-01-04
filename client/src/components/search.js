@@ -39,7 +39,7 @@ function Search(props) {
   };
   const addFriend = async (contactId) => {
     try {
-      var url = `http://localhost:3001/api/${user._id}/${contactId}`;
+      var url = `https://chat-app-pi46.onrender.com/api/${user._id}/${contactId}`;
       var res = await axios.post(url);
       let success = res.data.success
       if(success){
@@ -58,7 +58,7 @@ function Search(props) {
   const searchContacts = async (e) => {
     e.preventDefault();
     try {
-      var url = "http://localhost:3001/api/contacts-search";
+      var url = "https://chat-app-pi46.onrender.com/api/contacts-search";
 
       var res = await axios.post(url, {
           search: form,

@@ -11,11 +11,11 @@ export function SocketProvider({id, children}) {
     const [socket, setSocket] = useState()
     
     useEffect(()=> {
-        const newSocket = io('http://localhost:3001', {query: {id}} );
+        const newSocket = io('https://chat-app-pi46.onrender.com', {query: {id}} );
         setSocket(newSocket);
         const switchToOnline = async(id) => {
             var userId = id;
-                var url = "http://localhost:3001/api/user/user-online"
+                var url = "https://chat-app-pi46.onrender.com/api/user/user-online"
                try{
                   var res = await axios.put(url, {userId})
                }

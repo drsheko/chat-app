@@ -19,7 +19,7 @@ function ContactSection(props) {
       var userId = user._id;
       try {
         var res = await axios.post(
-          `http://localhost:3001/api/${userId}/all-rooms/join`
+          `https://chat-app-pi46.onrender.com/api/${userId}/all-rooms/join`
         );
         var rooms = await res.data.rooms;
         setChatRooms(rooms);

@@ -7,7 +7,7 @@ function Logout(props) {
     let {setUser} =useContext(UserContext);   
     const handleLogout = async(e) => {
         e.preventDefault();
-        let url = "http://localhost:3001/api/logout"
+        let url = "https://chat-app-pi46.onrender.com/api/logout"
         const res = await axios.get(url);
         if(res.data.success){
             localStorage.removeItem("CHAT_APP_user");

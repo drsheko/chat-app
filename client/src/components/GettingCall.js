@@ -28,7 +28,7 @@ function GettingCall(props) {
   }, []);
   useEffect(() => {
     const getCallerInfo = async () => {
-      let url = "http://localhost:3001/api/users/user";
+      let url = "https://chat-app-pi46.onrender.com/api/users/user";
       try {
         let res = await axios.post(url, {
           userId: props.currentCall.peer,

@@ -11,7 +11,7 @@ function Calls(props) {
 
 useEffect(()=>{
     const getUserCalls = async() => {
-        let url="http://localhost:3001/api/calls//user/mycalls";
+        let url="https://chat-app-pi46.onrender.com/api/calls//user/mycalls";
         try{
             var res = await axios.post(url,{
                 userId:user._id

@@ -33,7 +33,7 @@ function ChangeProfileInfo(props) {
       return;
     } else {
       try {
-        let url = "http://localhost:3001/api/user/editProfile/changeInfo";
+        let url = "https://chat-app-pi46.onrender.com/api/user/editProfile/changeInfo";
         let res = await axios.post(url, {
           userId: user._id,
           username: username.value,
