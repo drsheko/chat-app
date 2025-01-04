@@ -46,7 +46,8 @@ const Signup = () => {
         navigate("/login", { replace: true });
       }
     } catch (error) {
-      setErrors(error.response.data.errors);
+     
+     setErrors(error.response.data.errors);
     }
   };
 

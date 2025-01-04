@@ -100,7 +100,7 @@ exports.search_Contacts = async (req, res) => {
   var search = req.body.search;
   var userId = req.body.userId;
   User.find({
-    username: { $regex: search, $options: "$i" },
+    username: { $regex: search, },
     _id: { $ne: userId },
   }).exec((error, result) => {
     if (error) {
