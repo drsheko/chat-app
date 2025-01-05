@@ -12,9 +12,8 @@ export function PeerProvider({id, children}) {
     
     useEffect(()=> {
         const myPeer = new Peer(id, {
-            host:'localhost',
+            host:'https://chat-app-pi46.onrender.com',
             path:'/peerjs',
-            port:'3001'
         });
         setPeer(myPeer);
         
