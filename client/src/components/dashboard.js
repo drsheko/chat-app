@@ -93,15 +93,12 @@ function Dashboard() {
       socket.roomId = await getChatRoomByCallerId(friendId);
     }
 
-    var getUserMedia =
-      navigator.mediaDevices.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia ||
-      navigator.mzGetUserMedia;
+    
 
     let constraints = { video: { width: 1280, height: 720 }, audio: true };
-    getUserMedia(constraints)
+    navigator.mediaDevices.getUserMedia(constraints)
       .then((localStream) => {
+        console.log("Iam calling  ", localStream)
         const call = myPeer.call(friendId, localStream);
         currentCallRef.current = call;
         setLocalVideo(localStream);
@@ -312,6 +309,7 @@ function Dashboard() {
       myPeer.on("error", (error) => console.log(error));
       myPeer.on("open", (data) => console.log(data));
       myPeer.on("call", (call) => {
+        console.log("calliiiiiiiiiiiiiiiiiiiiiiiiiiiiiiing");
         setIsGettingCall(true);
         setCurrentCall(call);
         currentCallRef.current = call;

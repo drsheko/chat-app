@@ -202,7 +202,7 @@ function ChatBox(props) {
     
   };
 
-  const createMessage = async (message) => {
+  const createMessage = async (message) => {console.log("ssssssssss")
     var url = "https://chat-app-pi46.onrender.com/api/messages/newMessage/create";
     try {
       var res = await axios.post(url, {
@@ -336,7 +336,7 @@ function ChatBox(props) {
     ]);
     
   };
-  const sendMessage = (e) => {
+  const sendMessage = (e) => { 
     e.preventDefault();
     socket.emit("chat message", {
       room: chat._id,
@@ -344,6 +344,7 @@ function ChatBox(props) {
       message: text,
       type:'text'
     });
+    console.log("I sent a msg")
     createMessage(text);
     setmessages((prevState) => [
       ...prevState,
@@ -385,9 +386,9 @@ function ChatBox(props) {
     
     getRecipients();
     scrollToBottom();
-    socket.on("message", (data) => {
+    socket.on("message", (data) => {console.log("receviiiiiiiiiiiiiiiing an message", data,user._id , chat._id)
       if (data.postedBy._id !== user._id) {
-        if(chat._id === data.chatRoom){
+        if(chat._id === data.chatRoom){ console.log("message not me right chat")
          setmessages((prevState) => [...prevState, data]);
         }else{
           setNotification(data)

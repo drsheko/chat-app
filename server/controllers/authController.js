@@ -1,7 +1,7 @@
 const passport = require("passport");
 const mongoose = require("mongoose");
 const User = require("../models/userModel");
-exports.login_post = function (req, res, next) {
+exports.login_post = function (req, res, next) {console.log('ssssssssssssssssssssssssssssss')
   passport.authenticate("local", function (error, user, info) {
     if (error) {
       return res.status(401).json({success:false, error });

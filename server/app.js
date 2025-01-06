@@ -12,9 +12,9 @@ var LocalStrategy = require("passport-local").Strategy;
 var User = require("./models/userModel");
 var Routers = require("./routes/routers");
 var bcrypt = require("bcryptjs");
-var cors = require("cors");
+//var cors = require("cors");
 const multer = require("multer");
-const { Server } = require("socket.io");
+//const { Server } = require("socket.io");
 const { createServer } = require("http");
 const { ExpressPeerServer } = require("peer");
 
@@ -28,9 +28,18 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "Mongo Connection Error"));
 
 var app = express();
+const http = require("http");
+const { Server } = require("socket.io");
+const cors = require("cors");
+app.use(cors());
 
-const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: "*" });
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+  cors: "*"
+});
+
+//const httpServer = createServer(app);
+//const io = new Server(httpServer, { cors: "*" });
 
 // multer
 const memoStorage = multer.memoryStorage();
@@ -97,7 +106,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use(function (req, res, next) {
+/*app.use(function (req, res, next) {
   // Website you wish to allow to connect
   res.setHeader("Access-Control-Allow-Origin", "*");
 
@@ -117,13 +126,16 @@ app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Credentials", true);
 
   next();
-});
-
+}); 
+*/
+app.use(cors({
+  origin: '*', // Allow requests only from this origin
+}));
 // Routes setup
 app.use("/", Routers);
 
 //SOCKET IO
-io.on("connection", (socket) => {
+io.on("connection", (socket) => { console.log("connect")
   const id = socket.handshake.query.id;
   var myrooms = [];
   socket.emit("connected", id);
@@ -131,7 +143,7 @@ io.on("connection", (socket) => {
     var chatId = chat._id;
     socket.join(chatId);
   });
-  socket.on("join rooms", (data) => {
+  socket.on("join rooms", (data) => { console.log("join")
     var roomsIds = data.map((r) => r._id);
     myrooms = roomsIds;
     roomsIds.map((r) => {
@@ -140,7 +152,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("chat message", (data) => {
+  socket.on("chat message", (data) => {console.log(data.message)
     io.in(data.room).emit("message", {
       message: data.message,
       postedBy: data.sender,
@@ -171,7 +183,7 @@ io.on("connection", (socket) => {
   socket.on("end call", (data) => {
     io.in(data.room).emit("recieve end call", { data });
   });
-  socket.on("disconnect", (reason) => {
+  socket.on("disconnect", (reason) => { console.log("offline", reason)
     if (myrooms.length > 0) {
       myrooms.map((r) => {
         io.in(r).emit("offline", { id });
